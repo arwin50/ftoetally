@@ -47,7 +47,39 @@ export const Sidebar = () => {
         className={`fixed md:relative h-screen bg-burgundy text-yellow-300 transition-all duration-300 ease-in-out z-30 
                   ${isOpen ? "w-64" : "w-0 md:w-16"} overflow-hidden`}
       >
-        <div className="flex flex-col h-full"></div>
+        <div className="flex flex-col h-full">
+          {/* Logout */}
+          <div className="p-4">
+            <button
+              className="flex items-center text-yellow-300 hover:text-yellow-100 transition-colors"
+              onClick={handleLogout}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
+              </svg>
+              {isOpen && <span className="ml-3">Logout</span>}
+            </button>
+          </div>
+
+          {/* Logo */}
+          <div className="p-4 flex items-center">
+            <div className="h-8 w-8 bg-yellow-300 rounded-full flex items-center justify-center text-burgundy font-bold">
+              T
+            </div>
+            {isOpen && <span className="ml-3 text-2xl font-bold">Tally</span>}
+          </div>
+        </div>
       </aside>
 
       {/* Toggle Button - Outside the sidebar */}
