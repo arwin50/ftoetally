@@ -24,6 +24,10 @@ export default function DashboardPage() {
     router.push("/login");
   };
 
+  const goToTransactions = () => {
+    router.push("/transactions");
+  };
+
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -62,6 +66,12 @@ export default function DashboardPage() {
                 className="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-800 hover:bg-gray-100 transition"
               >
                 Logout
+              </button>
+              <button
+                onClick={goToTransactions}
+                className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition"
+              >
+                Go to Transactions
               </button>
             </div>
           </div>
