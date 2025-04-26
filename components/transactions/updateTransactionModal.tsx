@@ -1,27 +1,57 @@
 "use client";
 
-import type React from "react";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
-interface NewTransactionModalProps {
+interface UpdateTransactionModalProps {
   onClose: () => void;
   onSuccess?: () => void;
+  transactionId: number;
 }
 
-export default function NewTransactionModal({
+export default function UpdateTransactionModal({
   onClose,
   onSuccess,
-}: NewTransactionModalProps) {
+  transactionId,
+}: UpdateTransactionModalProps) {
   const [formData, setFormData] = useState({
     type: "Expense",
     category: "Food",
     subject: "",
     amount: "",
-    date: new Date().toISOString().split("T")[0],
+    date: "",
     notes: "",
   });
+
+  useEffect(() => {
+    async function fetchTransaction() {
+      try {
+        const response = await fetch(
+          `http://localhost:8000/transactions/${transactionId}/`,
+          {
+            credentials: "include",
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to load transaction data");
+        }
+
+        const data = await response.json();
+        setFormData(data);
+      } catch (error) {
+        console.error(error);
+        alert("Failed to load transaction data.");
+        onClose();
+      }
+    }
+
+    fetchTransaction();
+  }, [transactionId, onClose]);
+
+  if (!formData) {
+    return null;
+  }
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -29,49 +59,44 @@ export default function NewTransactionModal({
     >
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev: any) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
     try {
-      const response = await fetch(`http://localhost:8000/transactions/new/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          ...formData,
-          user: 1,
-        }),
-      });
-  
+      const response = await fetch(
+        `http://localhost:8000/transactions/update/${transactionId}/`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify(formData),
+        }
+      );
+
       if (!response.ok) {
-        const data = await response.json();
-        console.error("Error:", data);
-        alert("Failed to save transaction. Please check input.");
+        alert("Failed to update transaction");
         return;
       }
-  
-      alert("Transaction saved successfully!");
+
+      alert("Transaction updated successfully!");
       if (onSuccess) {
         onSuccess();
       }
-      onClose();
     } catch (error) {
-      console.error("Network error:", error);
-      alert("Something went wrong. Please try again later.");
+      console.error(error);
+      alert("Network error, please try again later");
     }
   };
-  
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-xl">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-black text-xl font-bold">New Transaction</h2>
+          <h2 className="text-black text-xl font-bold">Update Transaction</h2>
           <button
             onClick={onClose}
             className="text-white hover:bg-[#ba7c91] bg-[#85193C] rounded-md"
@@ -82,7 +107,7 @@ export default function NewTransactionModal({
 
         <hr className="border-t border-gray-300 mb-6" />
 
-        <form onSubmit={handleSubmit} className="">
+        <form onSubmit={handleSubmit}>
           <div className="flex items-center gap-2 mb-4">
             <label
               htmlFor="modal-type"
@@ -96,13 +121,13 @@ export default function NewTransactionModal({
               value={formData.type}
               onChange={handleChange}
               className={`flex-1 rounded px-3 py-2 text-black
-                    ${
-                      formData.type === "Expense"
-                        ? "bg-rose-100"
-                        : formData.type === "Income"
-                        ? "bg-green-100"
-                        : "bg-white"
-                    }`}
+                ${
+                  formData.type === "Expense"
+                    ? "bg-rose-100"
+                    : formData.type === "Income"
+                    ? "bg-green-100"
+                    : "bg-white"
+                }`}
             >
               <option value="Expense">Expense</option>
               <option value="Income">Income</option>
@@ -208,7 +233,7 @@ export default function NewTransactionModal({
               type="submit"
               className="px-4 py-2 bg-[#4A102A] text-white rounded-md hover:bg-[#35091D]"
             >
-              Save
+              Update
             </button>
           </div>
         </form>
