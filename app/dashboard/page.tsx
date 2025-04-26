@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { ProtectedRoute } from "../protected";
@@ -26,11 +26,15 @@ ChartJS.register(
   BarElement
 );
 
+import { List } from "lucide-react";
+
 export default function DashboardPage() {
   const { user, isAuthenticated, isLoading } = useAppSelector(
     (state) => state.auth
   );
   const router = useRouter();
+
+  const [showSidebar, setShowSidebar] = useState(true);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -77,7 +81,11 @@ export default function DashboardPage() {
   return (
     <ProtectedRoute>
       <div className="flex h-screen bg-gray-100">
-        <Sidebar />
+        <Sidebar
+          activePage="dashboard"
+          userName={user?.username || "Username"}
+          userEmail={user?.email}
+        />
 
         <main className="flex-1 overflow-auto transition-all duration-300">
           <div className="bg-burgundy text-white p-4">
