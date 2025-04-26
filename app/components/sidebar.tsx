@@ -1,32 +1,42 @@
 "use client";
 import Link from "next/link";
-import { Home, WalletCards, LogOut } from "lucide-react";
+import { Home, WalletCards, LogOut, User } from "lucide-react";
+import { IoPersonCircleOutline } from "react-icons/io5";
+import { useAppDispatch } from "@/lib/redux/hooks";
+import { logout } from "@/lib/redux/slices/authSlice";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface SidebarProps {
   activePage?: "dashboard" | "transactions";
   userName?: string;
+  userEmail?: string;
 }
 
-export function Sidebar({
-  activePage = "dashboard",
-  userName = "John Doe",
-}: SidebarProps) {
+export function Sidebar({ activePage, userName, userEmail }: SidebarProps) {
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await dispatch(logout());
+    router.push("/login");
+  };
+
   return (
-    <div className="flex flex-col h-full">
+    <div className="bg-[#85193C] text-white flex flex-col h-screen">
       {/* User Profile */}
-      <div className="flex flex-col items-center mt-16 mb-12">
-        <div className="w-32 h-32 rounded-full bg-[#F7E84B] flex items-center justify-center">
-          <div className="w-24 h-24 rounded-full border-4 border-[#8B1A3A]"></div>
-        </div>
-        <h2 className="mt-4 text-xl font-medium text-[#F7E84B]">{userName}</h2>
+      <div className="flex flex-col items-center justify-center mt-16 mb-12 mx-auto">
+        <IoPersonCircleOutline className="text-[#F7E84B]" size={132} />
+        <h2 className="mt-2 text-xl font-medium text-[#F7E84B]">{userName}</h2>
+        <h3 className="text-[#F7E84B]">{userEmail}</h3>
       </div>
 
       {/* Navigation */}
       <nav className="flex-1">
         <Link
           href="/dashboard"
-          className={`flex items-center w-full px-6 py-3 text-left ${
-            activePage === "dashboard" ? "bg-[#6D1530]" : ""
+          className={`flex items-center w-[90%] px-6 py-3 text-left ml-3 rounded-md hover:bg-[#4A102A] transition-colors duration-200${
+            activePage === "dashboard" ? " ml-3 rounded-md bg-[#4A102A]" : ""
           }`}
         >
           <Home className="mr-3 text-[#F7E84B]" size={24} />
@@ -34,8 +44,8 @@ export function Sidebar({
         </Link>
         <Link
           href="/transactions"
-          className={`flex items-center w-full px-6 py-3 text-left ${
-            activePage === "transactions" ? "bg-[#6D1530]" : ""
+          className={`flex items-center w-[90%] px-6 py-3 mt-2 text-left ml-3 rounded-md hover:bg-[#4A102A] transition-colors duration-200${
+            activePage === "transactions" ? " ml-3 rounded-md bg-[#6D1530]" : ""
           }`}
         >
           <WalletCards className="mr-3 text-[#F7E84B]" size={24} />
@@ -44,15 +54,24 @@ export function Sidebar({
       </nav>
 
       {/* Logout Button */}
-      <Link href="/logout" className="flex items-center px-6 py-3 text-left">
+      <button
+        onClick={handleLogout}
+        className="flex items-center w-[90%] px-6 py-3 mt-2 ml-3 rounded-md hover:bg-[#4A102A] transition-colors duration-200 text-left"
+      >
         <LogOut className="mr-3 text-[#F7E84B]" size={24} />
         <span className="text-lg">Logout</span>
-      </Link>
+      </button>
 
       {/* Tally Logo */}
       <div className="flex items-center px-6 py-4 mb-4">
-        <div className="w-10 h-10 rounded-full bg-[#F7E84B] flex items-center justify-center text-[#8B1A3A] font-bold mr-3">
-          <span>₹</span>
+        {/* Display the logo from the public folder */}
+        <div className="rounded-full flex items-center justify-center mr-3">
+          <Image
+            src="/assets/tally-logo.png"
+            alt="Tally Logo"
+            width={50}
+            height={50}
+          />
         </div>
         <span className="text-3xl font-bold text-[#F7E84B]">Tally</span>
       </div>

@@ -42,11 +42,15 @@ export default function DashboardPage() {
       <div className="flex min-h-screen flex-row bg-gray-50">
         {/* Sidebar */}
         <div
-          className={`bg-[#8B1A3A] text-white flex flex-col h-screen transition-all duration-300 ${
+          className={`transition-all duration-300 ${
             showSidebar ? "w-[304px]" : "w-0 overflow-hidden"
           }`}
         >
-          <Sidebar activePage="dashboard" />
+          <Sidebar
+            activePage="dashboard"
+            userName={user?.username || "Username"}
+            userEmail={user?.email}
+          />
         </div>
 
         {/* Main content */}
