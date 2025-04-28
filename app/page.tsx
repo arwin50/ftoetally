@@ -1,6 +1,20 @@
+"use client";
+
 import Link from "next/link";
+import { useAppSelector } from "@/lib/redux/hooks";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Home() {
+  const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isAuthenticated && !isLoading) {
+      router.push("/dashboard");
+    }
+  }, [isAuthenticated, isLoading, router]);
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-gray-50">
       <div className="w-full max-w-md space-y-8">
@@ -12,7 +26,6 @@ export default function Home() {
         </div>
         <div className="flex flex-col space-y-4">
           <Link href="/login">Login</Link>
-
           <Link href="/register">Register</Link>
         </div>
       </div>
