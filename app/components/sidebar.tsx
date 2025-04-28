@@ -40,7 +40,7 @@ export function Sidebar({
     <div className="flex h-screen">
       <div
         className={`bg-[#85193C] text-white flex flex-col h-screen transition-all duration-300 ${
-          minimized ? "w-[70px]" : "w-[304px]"
+          minimized ? "w-[80px]" : "w-[304px]"
         }`}
       >
         {/* User Profile */}
