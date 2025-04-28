@@ -26,15 +26,13 @@ ChartJS.register(
   BarElement
 );
 
-import { List } from "lucide-react";
-
 export default function DashboardPage() {
   const { user, isAuthenticated, isLoading } = useAppSelector(
     (state) => state.auth
   );
-  const router = useRouter();
+  const [minimized, setMinimized] = useState(false);
 
-  const [showSidebar, setShowSidebar] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -78,6 +76,10 @@ export default function DashboardPage() {
     maintainAspectRatio: false,
   };
 
+  const toggleSidebar = () => {
+    setMinimized(!minimized);
+  };
+
   return (
     <ProtectedRoute>
       <div className="flex h-screen bg-gray-100">
@@ -85,11 +87,13 @@ export default function DashboardPage() {
           activePage="dashboard"
           userName={user?.username || "Username"}
           userEmail={user?.email}
+          minimized={minimized}
+          onToggle={toggleSidebar}
         />
 
         <main className="flex-1 overflow-auto transition-all duration-300">
           <div className="bg-burgundy text-white p-4">
-            <h1 className="text-2xl font-bold">Dashboard</h1>
+            <h1 className="text-2xl font-bold ml-1">Dashboard</h1>
           </div>
 
           <div className="p-6">
