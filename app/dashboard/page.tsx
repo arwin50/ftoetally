@@ -40,6 +40,16 @@ export default function DashboardPage() {
     }
   }, [isAuthenticated, isLoading, router]);
 
+  const handleLogout = async () => {
+    await dispatch(logout());
+    router.push("/login");
+  };
+
+  const goToTransactions = () => {
+    router.push("/transactions");
+  };
+
+
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
