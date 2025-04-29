@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import UpdateTransactionModal from "./updateTransactionModal";
+import { authService } from "@/lib/redux/services/auth-service";
+import { api } from "@/lib/redux/services/auth-service";
 
 interface Transaction {
   id: number;
@@ -31,7 +33,6 @@ export default function TransactionTable({
   const [editingTransactionId, setEditingTransactionId] = useState<
     number | null
   >(null);
-
   useEffect(() => {
     async function fetchTransactions() {
       try {
@@ -39,16 +40,24 @@ export default function TransactionTable({
         if (type !== "All") query.append("type", type);
         if (category !== "All") query.append("category", category);
 
-        const response = await fetch(
-          `http://localhost:8000/transactions/?${query.toString()}`,
-          {
-            credentials: "include",
-          }
-        );
-        const data = await response.json();
+        const accessToken = localStorage.getItem("accessToken");
+        if (!accessToken) {
+          alert("You need to be logged in.");
+          return;
+        }
+
+        const response = await api.get(`/transactions/?${query.toString()}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        const data = response.data;
+        console.log("Fetched Transactions:", data);
         setTransactions(data);
       } catch (error) {
         console.error("Error fetching transactions:", error);
+        alert("Something went wrong. Please try again later.");
       }
     }
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
+import { api } from "@/lib/redux/services/auth-service";
 
 interface UpdateTransactionModalProps {
   onClose: () => void;
@@ -26,18 +27,20 @@ export default function UpdateTransactionModal({
   useEffect(() => {
     async function fetchTransaction() {
       try {
-        const response = await fetch(
-          `http://localhost:8000/transactions/${transactionId}/`,
-          {
-            credentials: "include",
-          }
-        );
+        const accessToken = localStorage.getItem("accessToken");
 
-        if (!response.ok) {
-          throw new Error("Failed to load transaction data");
+        if (!accessToken) {
+          alert("You need to be logged in.");
+          return;
         }
 
-        const data = await response.json();
+        const response = await api.get(`/transactions/${transactionId}/`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        const data = response.data;
         setFormData(data);
       } catch (error) {
         console.error(error);
@@ -64,30 +67,31 @@ export default function UpdateTransactionModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const response = await fetch(
-        `http://localhost:8000/transactions/update/${transactionId}/`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify(formData),
-        }
-      );
 
-      if (!response.ok) {
-        alert("Failed to update transaction");
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      if (!accessToken) {
+        alert("You need to be logged in.");
         return;
       }
+
+      const response = await api.put(
+        `/transactions/update/${transactionId}/`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
 
       alert("Transaction updated successfully!");
       if (onSuccess) {
         onSuccess();
       }
     } catch (error) {
-      console.error(error);
+      console.error("Network error:", error);
       alert("Network error, please try again later");
     }
   };
