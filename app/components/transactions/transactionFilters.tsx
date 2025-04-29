@@ -1,11 +1,17 @@
 "use client";
+interface TransactionFiltersProps {
+  type: string;
+  setType: (value: string) => void;
+  category: string;
+  setCategory: (value: string) => void;
+}
 
-import { useState } from "react";
-
-export default function TransactionFilters() {
-  const [type, setType] = useState("Expense");
-  const [category, setCategory] = useState("Food");
-
+export default function TransactionFilters({
+  type,
+  setType,
+  category,
+  setCategory,
+}: TransactionFiltersProps) {
   return (
     <div className="flex gap-4">
       <div className="flex items-center gap-2">

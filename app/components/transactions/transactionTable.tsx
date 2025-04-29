@@ -15,6 +15,8 @@ interface TransactionTableProps {
   setSelectedIds: (ids: number[]) => void;
   refreshFlag: boolean;
   onTransactionUpdated: () => void;
+  type: string;
+  category: string;
 }
 
 export default function TransactionTable({
@@ -22,6 +24,8 @@ export default function TransactionTable({
   setSelectedIds,
   refreshFlag,
   onTransactionUpdated,
+  type,
+  category,
 }: TransactionTableProps) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [editingTransactionId, setEditingTransactionId] = useState<
@@ -31,9 +35,16 @@ export default function TransactionTable({
   useEffect(() => {
     async function fetchTransactions() {
       try {
-        const response = await fetch("http://localhost:8000/transactions/", {
-          credentials: "include",
-        });
+        const query = new URLSearchParams();
+        if (type !== "All") query.append("type", type);
+        if (category !== "All") query.append("category", category);
+
+        const response = await fetch(
+          `http://localhost:8000/transactions/?${query.toString()}`,
+          {
+            credentials: "include",
+          }
+        );
         const data = await response.json();
         setTransactions(data);
       } catch (error) {
@@ -42,7 +53,7 @@ export default function TransactionTable({
     }
 
     fetchTransactions();
-  }, [refreshFlag]);
+  }, [refreshFlag, type, category]);
 
   const handleRowClick = (id: number) => {
     setEditingTransactionId(id);

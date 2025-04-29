@@ -77,16 +77,12 @@ export default function DashboardPage() {
     maintainAspectRatio: false,
   };
 
-  const toggleSidebar = () => {
-    setMinimized(!minimized);
-  };
-
   return (
     <ProtectedRoute>
       <PageLayout activePage="dashboard">
         <div className="flex h-screen bg-gray-100">
           <main className="flex-1 overflow-auto transition-all duration-300">
-            <div className="bg-burgundy text-white p-4">
+            <div className="bg-[#4A102A] text-white px-4 py-2">
               <h1 className="text-2xl font-bold ml-2">Dashboard</h1>
             </div>
 
