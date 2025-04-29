@@ -4,6 +4,7 @@ import type React from "react";
 
 import { useState } from "react";
 import { X } from "lucide-react";
+import { api } from "@/lib/redux/services/auth-service";
 
 interface NewTransactionModalProps {
   onClose: () => void;
@@ -36,25 +37,12 @@ export default function NewTransactionModal({
     e.preventDefault();
 
     try {
-      const response = await fetch(`http://localhost:8000/transactions/new/`, {
-        method: "POST",
+      const accessToken = localStorage.getItem("accessToken");
+      const response = await api.post("/transactions/new/", formData, {
         headers: {
-          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
-        credentials: "include",
-        body: JSON.stringify({
-          ...formData,
-          user: 1,
-        }),
       });
-
-      if (!response.ok) {
-        const data = await response.json();
-        console.error("Error:", data);
-        alert("Failed to save transaction. Please check input.");
-        return;
-      }
-
       alert("Transaction saved successfully!");
       if (onSuccess) {
         onSuccess();

@@ -5,6 +5,7 @@ import { useState } from "react";
 import TransactionFilters from "../components/transactions/transactionFilters";
 import TransactionTable from "../components/transactions/transactionTable";
 import NewTransactionButton from "../components/transactions/newTransactionButton";
+import { api } from "@/lib/redux/services/auth-service";
 import PageLayout from "../components/pageLayout";
 import { ProtectedRoute } from "../protected";
 
@@ -36,17 +37,22 @@ export default function TransactionsPage() {
     if (!confirmDelete) return;
 
     try {
-      for (const id of selectedIds) {
-        const response = await fetch(
-          `http://localhost:8000/transactions/delete/${id}/`,
-          {
-            method: "DELETE",
-            credentials: "include",
-          }
-        );
+      const accessToken = localStorage.getItem("accessToken");
+      if (!accessToken) {
+        alert("You need to be logged in.");
+        return;
+      }
 
-        if (!response.ok) {
+      for (const id of selectedIds) {
+        const response = await api.delete(`/transactions/delete/${id}/`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        if (response.status !== 200) {
           console.error(`Failed to delete transaction with ID ${id}`);
+          alert(`Failed to delete transaction with ID ${id}`);
         }
       }
 
@@ -55,6 +61,7 @@ export default function TransactionsPage() {
       setRefreshFlag(!refreshFlag);
     } catch (error) {
       console.error("Error deleting transactions:", error);
+      alert("An error occurred while deleting transactions. Please try again.");
     }
   };
 
