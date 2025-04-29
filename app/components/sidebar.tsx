@@ -12,6 +12,8 @@ import { useAppDispatch } from "@/lib/redux/hooks";
 import { logout } from "@/lib/redux/slices/authSlice";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useState } from "react";
+import { ConfirmationModal } from "./transactions/confimModal";
 
 interface SidebarProps {
   activePage?: "dashboard" | "transactions";
@@ -31,9 +33,15 @@ export function Sidebar({
   const dispatch = useAppDispatch();
   const router = useRouter();
 
+  const [showModal, setShowModal] = useState(false);
+
   const handleLogout = async () => {
     await dispatch(logout());
     router.push("/login");
+  };
+
+  const handleCancelLogout = () => {
+    setShowModal(false);
   };
 
   return (
@@ -101,7 +109,7 @@ export function Sidebar({
 
         {/* Logout Button */}
         <button
-          onClick={handleLogout}
+          onClick={() => setShowModal(true)}
           className={`flex items-center ${minimized ? "justify-center" : ""} ${
             minimized ? "w-[90%] mx-auto" : "w-[90%] ml-3"
           } px-3 py-3 mt-2 rounded-md hover:bg-[#4A102A] transition-colors duration-200 text-left`}
@@ -146,6 +154,13 @@ export function Sidebar({
           {minimized ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
         </button>
       </div>
+      <ConfirmationModal
+        isOpen={showModal}
+        onClose={handleCancelLogout}
+        onConfirm={handleLogout}
+        title="Confirming Logout"
+        message="Are you sure you want to log out of your account?"
+      />
     </div>
   );
 }

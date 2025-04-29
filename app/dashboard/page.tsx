@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { ProtectedRoute } from "../protected";
-import { Sidebar } from "../components/sidebar";
 import PageLayout from "../components/pageLayout";
+import { ConfirmationModal } from "../components/transactions/confimModal";
 
 import { Pie, Bar } from "react-chartjs-2";
 import {
@@ -32,6 +32,7 @@ export default function DashboardPage() {
     (state) => state.auth
   );
   const [minimized, setMinimized] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   const router = useRouter();
 
