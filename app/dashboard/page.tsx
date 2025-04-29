@@ -6,6 +6,8 @@ import { useAppSelector } from "@/lib/redux/hooks";
 import { ProtectedRoute } from "../protected";
 import { Sidebar } from "../components/sidebar";
 import PageLayout from "../components/pageLayout";
+import { Transaction } from "../components/transactions/transactionTable";
+import { api } from "@/lib/redux/services/auth-service";
 
 import { Pie, Bar } from "react-chartjs-2";
 import {
@@ -31,7 +33,111 @@ export default function DashboardPage() {
   const { user, isAuthenticated, isLoading } = useAppSelector(
     (state) => state.auth
   );
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [minimized, setMinimized] = useState(false);
+  const [pieData, setPieData] = useState<{
+    labels: string[];
+    datasets: {
+      data: number[];
+      backgroundColor: string[];
+      hoverBackgroundColor: string[];
+    }[];
+  }>({
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        backgroundColor: [
+          "#60A5FA",
+          "#FBBF24",
+          "#A78BFA",
+          "#34D399",
+          "#F472B6",
+        ],
+        hoverBackgroundColor: [
+          "#3B82F6",
+          "#F59E0B",
+          "#8B5CF6",
+          "#10B981",
+          "#EC4899",
+        ],
+      },
+    ],
+  });
+
+  const [barData, setBarData] = useState({
+    labels: ["Income", "Expenses"],
+    datasets: [
+      {
+        label: "Amount",
+        data: [0, 0],
+        backgroundColor: ["#14B8A6", "#F87171"],
+      },
+    ],
+  });
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        let totalIncome = 0;
+        let totalExpense = 0;
+        const accessToken = localStorage.getItem("accessToken");
+        const response = await api.get("/transactions/", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        const fetched = response.data;
+        setTransactions(fetched);
+        console.log("Fetched Transactions:", fetched);
+
+        // Calculate expense totals per category
+        const categoryTotals: { [key: string]: number } = {};
+        fetched.forEach((tx: Transaction) => {
+          if (tx.type === "Expense") {
+            const cat = tx.category;
+            const amt = Number(tx.amount);
+            totalExpense += Number(tx.amount);
+
+            categoryTotals[cat] = (categoryTotals[cat] || 0) + amt;
+          }
+          if (tx.type === "Income") {
+            totalIncome += tx.amount;
+          }
+        });
+        console.log("Total Income:", totalIncome);
+        console.log("Total Expense:", totalExpense);
+        const labels = Object.keys(categoryTotals);
+        const data = Object.values(categoryTotals);
+
+        setPieData((prev) => ({
+          ...prev,
+          labels,
+          datasets: [
+            {
+              ...prev.datasets[0],
+              data,
+            },
+          ],
+        }));
+
+        setBarData({
+          labels: ["Income", "Expenses"],
+          datasets: [
+            {
+              label: "Amount",
+              data: [totalIncome, totalExpense],
+              backgroundColor: ["#14B8A6", "#F87171"],
+            },
+          ],
+        });
+      } catch {
+        alert("Something went wrong. Please try again later.");
+      }
+    };
+
+    fetchTransactions();
+  }, []);
 
   const router = useRouter();
 
@@ -49,34 +155,10 @@ export default function DashboardPage() {
     );
   }
 
-  // --- Chart Data ---
-  const pieData = {
-    labels: ["Food", "Rent", "Entertainment"],
-    datasets: [
-      {
-        data: [300, 500, 200],
-        backgroundColor: ["#60A5FA", "#FBBF24", "#A78BFA"],
-        hoverBackgroundColor: ["#3B82F6", "#F59E0B", "#8B5CF6"],
-      },
-    ],
-  };
-
-  const barData = {
-    labels: ["Income", "Expenses"],
-    datasets: [
-      {
-        label: "Amount",
-        data: [1000, 700],
-        backgroundColor: ["#14B8A6", "#F87171"],
-      },
-    ],
-  };
-
   const barOptions = {
     responsive: true,
     maintainAspectRatio: false,
   };
-
   return (
     <ProtectedRoute>
       <PageLayout activePage="dashboard">

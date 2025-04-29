@@ -3,7 +3,7 @@ import UpdateTransactionModal from "./updateTransactionModal";
 import { authService } from "@/lib/redux/services/auth-service";
 import { api } from "@/lib/redux/services/auth-service";
 
-interface Transaction {
+export interface Transaction {
   id: number;
   subject: string;
   date: string;
