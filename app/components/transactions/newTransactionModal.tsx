@@ -5,6 +5,7 @@ import type React from "react";
 import { useState } from "react";
 import { X } from "lucide-react";
 import { api } from "@/lib/redux/services/auth-service";
+import toast from "react-hot-toast";
 
 interface NewTransactionModalProps {
   onClose: () => void;
@@ -43,14 +44,13 @@ export default function NewTransactionModal({
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      alert("Transaction saved successfully!");
+      toast.success("Transaction added successfully!");
       if (onSuccess) {
         onSuccess();
       }
       onClose();
     } catch (error) {
-      console.error("Network error:", error);
-      alert("Something went wrong. Please try again later.");
+      toast.error("Something went wrong. Please try again.");
     }
   };
 

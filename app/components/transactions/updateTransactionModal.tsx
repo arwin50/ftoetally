@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { api } from "@/lib/redux/services/auth-service";
+import toast from "react-hot-toast";
 
 interface UpdateTransactionModalProps {
   onClose: () => void;
@@ -44,7 +45,6 @@ export default function UpdateTransactionModal({
         setFormData(data);
       } catch (error) {
         console.error(error);
-        alert("Failed to load transaction data.");
         onClose();
       }
     }
@@ -86,13 +86,12 @@ export default function UpdateTransactionModal({
         }
       );
 
-      alert("Transaction updated successfully!");
+      toast.success("Transaction updated successfully!");
       if (onSuccess) {
         onSuccess();
       }
     } catch (error) {
-      console.error("Network error:", error);
-      alert("Network error, please try again later");
+      toast.error("Something went wrong. Please try again.");
     }
   };
 

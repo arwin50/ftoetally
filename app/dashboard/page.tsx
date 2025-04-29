@@ -31,7 +31,10 @@ export default function DashboardPage() {
   const { user, isAuthenticated, isLoading } = useAppSelector(
     (state) => state.auth
   );
+  const [totalExpenses, setTotalExpenses] = useState(0);
+  const [totalIncome, setTotalIncome] = useState(0);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const router = useRouter();
   const [pieData, setPieData] = useState<{
     labels: string[];
     datasets: {
@@ -74,6 +77,12 @@ export default function DashboardPage() {
   });
 
   useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push("/login");
+    }
+  }, [isAuthenticated, isLoading, router]);
+
+  useEffect(() => {
     const fetchTransactions = async () => {
       try {
         let totalIncome = 0;
@@ -99,14 +108,14 @@ export default function DashboardPage() {
             categoryTotals[cat] = (categoryTotals[cat] || 0) + amt;
           }
           if (tx.type === "Income") {
-            totalIncome += tx.amount;
+            totalIncome += Number(tx.amount);
           }
         });
-        console.log("Total Income:", totalIncome);
-        console.log("Total Expense:", totalExpense);
         const labels = Object.keys(categoryTotals);
         const data = Object.values(categoryTotals);
 
+        setTotalExpenses(totalExpense);
+        setTotalIncome(totalIncome);
         setPieData((prev) => ({
           ...prev,
           labels,
@@ -132,18 +141,10 @@ export default function DashboardPage() {
         alert("Something went wrong. Please try again later.");
       }
     };
-
-    fetchTransactions();
-  }, []);
-  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
-
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push("/login");
+    if (!isLoading && isAuthenticated) {
+      fetchTransactions();
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [isLoading, isAuthenticated]);
 
   if (isLoading) {
     return (
@@ -261,17 +262,19 @@ export default function DashboardPage() {
                 <div className="space-y-4">
                   <div className="flex justify-between">
                     <span>Total Income:</span>
-                    <span className="font-mono">1,000,000,000</span>
+                    <span className="font-mono">{totalIncome}</span>
                   </div>
 
                   <div className="flex justify-between">
                     <span>Total Expense:</span>
-                    <span className="font-mono">-999,999,999</span>
+                    <span className="font-mono">- {totalExpenses}</span>
                   </div>
 
                   <div className="border-t pt-4 flex justify-between font-bold">
                     <span>Remaining Balance:</span>
-                    <span className="font-mono">1</span>
+                    <span className="font-mono">
+                      {totalIncome - totalExpenses}
+                    </span>
                   </div>
                 </div>
               </div>
