@@ -12,6 +12,9 @@ export default function TransactionsPage() {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [refreshFlag, setRefreshFlag] = useState(false);
 
+  const [type, setType] = useState("All");
+  const [category, setCategory] = useState("All");
+
   const handleCreated = () => {
     console.log("Trigger refresh");
     setRefreshFlag((prev) => !prev);
@@ -56,28 +59,33 @@ export default function TransactionsPage() {
   };
 
   return (
-   
-        <div className="p-4 bg-white rounded-lg shadow-sm">
-          <div className="flex justify-between items-center mb-4">
-            <TransactionFilters />
-            <div className="flex gap-2">
-              <NewTransactionButton onCreated={handleCreated} />
-              <button
-                onClick={handleDelete}
-                disabled={selectedIds.length === 0}
-                className="p-2 bg-white border border-[#85193C] rounded-md hover:bg-[#ba7c91] disabled:opacity-50"
-              >
-                <Trash2 className="h-5 w-5 text-[#85193C]" />
-              </button>
-            </div>
-          </div>
-          <TransactionTable
-            selectedIds={selectedIds}
-            setSelectedIds={setSelectedIds}
-            refreshFlag={refreshFlag}
-            onTransactionUpdated={handleTransactionUpdate}
-          />
+    <div className="p-4 bg-white rounded-lg shadow-sm">
+      <div className="flex justify-between items-center mb-4">
+        <TransactionFilters
+          type={type}
+          setType={setType}
+          category={category}
+          setCategory={setCategory}
+        />
+        <div className="flex gap-2">
+          <NewTransactionButton onCreated={handleCreated} />
+          <button
+            onClick={handleDelete}
+            disabled={selectedIds.length === 0}
+            className="p-2 bg-white border border-[#85193C] rounded-md hover:bg-[#ba7c91] disabled:opacity-50"
+          >
+            <Trash2 className="h-5 w-5 text-[#85193C]" />
+          </button>
         </div>
-
+      </div>
+      <TransactionTable
+        selectedIds={selectedIds}
+        setSelectedIds={setSelectedIds}
+        refreshFlag={refreshFlag}
+        onTransactionUpdated={handleTransactionUpdate}
+        type={type}
+        category={category}
+      />
+    </div>
   );
 }

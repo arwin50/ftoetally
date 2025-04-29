@@ -34,7 +34,7 @@ export default function NewTransactionModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     try {
       const response = await fetch(`http://localhost:8000/transactions/new/`, {
         method: "POST",
@@ -47,14 +47,14 @@ export default function NewTransactionModal({
           user: 1,
         }),
       });
-  
+
       if (!response.ok) {
         const data = await response.json();
         console.error("Error:", data);
         alert("Failed to save transaction. Please check input.");
         return;
       }
-  
+
       alert("Transaction saved successfully!");
       if (onSuccess) {
         onSuccess();
@@ -65,7 +65,6 @@ export default function NewTransactionModal({
       alert("Something went wrong. Please try again later.");
     }
   };
-  
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -104,8 +103,12 @@ export default function NewTransactionModal({
                         : "bg-white"
                     }`}
             >
-              <option value="Expense">Expense</option>
-              <option value="Income">Income</option>
+              <option value="Expense" className="bg-white">
+                Expense
+              </option>
+              <option value="Income" className="bg-white">
+                Income
+              </option>
             </select>
           </div>
 
