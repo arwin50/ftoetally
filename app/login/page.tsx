@@ -41,19 +41,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#8b1a3d] p-4">
-      <div className="mb-8 flex items-center">
-        <div className="mr-4 h-16 w-16 relative">
-          <Image
-            src="/assets/tally-logo.png"
-            alt="Tally Logo"
-            fill
-            className="object-contain"
-          />
-        </div>
-        <h1 className="text-7xl font-medium text-[#F7E84B]">Tally</h1>
-      </div>
-
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[#85193C] p-4">
       <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-lg">
         <div className="mb-6 text-center">
           <h2 className="text-3xl font-bold text-gray-900">Welcome!</h2>
@@ -79,7 +67,7 @@ export default function LoginPage() {
             <input
               id="email"
               type="email"
-              placeholder="Placeholder"
+              placeholder="Email@address.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -97,7 +85,7 @@ export default function LoginPage() {
             <input
               id="password"
               type="password"
-              placeholder="Placeholder"
+              placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
