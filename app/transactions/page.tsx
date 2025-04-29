@@ -2,9 +2,9 @@
 
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
-import TransactionFilters from "@/components/transactions/transactionFilters";
-import TransactionTable from "@/components/transactions/transactionTable";
-import NewTransactionButton from "@/components/transactions/newTransactionButton";
+import TransactionFilters from "../components/transactions/transactionFilters";
+import TransactionTable from "../components/transactions/transactionTable";
+import NewTransactionButton from "../components/transactions/newTransactionButton";
 import PageLayout from "../components/pageLayout";
 import { ProtectedRoute } from "../protected";
 
