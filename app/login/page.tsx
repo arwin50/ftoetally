@@ -4,7 +4,6 @@ import type React from "react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import { login, clearError } from "@/lib/redux/slices/authSlice";

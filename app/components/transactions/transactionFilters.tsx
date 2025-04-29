@@ -40,6 +40,7 @@ export default function TransactionFilters({
           onChange={(e) => setCategory(e.target.value)}
           className="h-10 border border-gray-300 rounded-lg px-3 py-1.5 text-md text-black"
         >
+          <option value="All">All</option>
           <option value="Food">Food</option>
           <option value="Transportation">Transportation</option>
           <option value="Entertainment">Entertainment</option>

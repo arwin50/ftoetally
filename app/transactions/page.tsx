@@ -2,21 +2,23 @@
 
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
+import toast from "react-hot-toast";
 import TransactionFilters from "../components/transactions/transactionFilters";
 import TransactionTable from "../components/transactions/transactionTable";
 import NewTransactionButton from "../components/transactions/newTransactionButton";
 import { api } from "@/lib/redux/services/auth-service";
-import PageLayout from "../components/pageLayout";
-import { ProtectedRoute } from "../protected";
+import { ConfirmationModal } from "../components/transactions/confimModal";
 
 export default function TransactionsPage() {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [refreshFlag, setRefreshFlag] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [type, setType] = useState("All");
   const [category, setCategory] = useState("All");
 
   const handleCreated = () => {
+    toast.success("Transaction added successfully!");
     console.log("Trigger refresh");
     setRefreshFlag((prev) => !prev);
   };
@@ -25,17 +27,16 @@ export default function TransactionsPage() {
     setRefreshFlag((prev) => !prev);
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (selectedIds.length === 0) {
       alert("No transactions selected for deletion.");
       return;
     }
 
-    const confirmDelete = confirm(
-      `Are you sure you want to delete ${selectedIds.length} transactions?`
-    );
-    if (!confirmDelete) return;
+    setIsModalOpen(true);
+  };
 
+  const handleDeleteConfirmed = async () => {
     try {
       const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) {
@@ -56,12 +57,14 @@ export default function TransactionsPage() {
         }
       }
 
-      alert("Selected transactions deleted successfully!");
+      toast.success("Transaction/s deleted successfully!");
       setSelectedIds([]);
-      setRefreshFlag(!refreshFlag);
+      setRefreshFlag((prev) => !prev);
     } catch (error) {
       console.error("Error deleting transactions:", error);
-      alert("An error occurred while deleting transactions. Please try again.");
+      toast.error("Failed to delete transactions.");
+    } finally {
+      setIsModalOpen(false);
     }
   };
 
@@ -92,6 +95,15 @@ export default function TransactionsPage() {
         onTransactionUpdated={handleTransactionUpdate}
         type={type}
         category={category}
+      />
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleDeleteConfirmed}
+        title="Delete Transactions"
+        message={`Are you sure you want to delete ${selectedIds.length} transaction(s)? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
       />
     </div>
   );

@@ -4,11 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { ProtectedRoute } from "../protected";
-import { Sidebar } from "../components/sidebar";
 import PageLayout from "../components/pageLayout";
 import { Transaction } from "../components/transactions/transactionTable";
 import { api } from "@/lib/redux/services/auth-service";
-
 import { Pie, Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -34,7 +32,6 @@ export default function DashboardPage() {
     (state) => state.auth
   );
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [minimized, setMinimized] = useState(false);
   const [pieData, setPieData] = useState<{
     labels: string[];
     datasets: {
@@ -138,6 +135,7 @@ export default function DashboardPage() {
 
     fetchTransactions();
   }, []);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   const router = useRouter();
 
