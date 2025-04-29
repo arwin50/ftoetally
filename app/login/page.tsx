@@ -4,6 +4,7 @@ import type React from "react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import { login, clearError } from "@/lib/redux/slices/authSlice";
@@ -17,6 +18,7 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
 
   useEffect(() => {
     dispatch(clearError());
@@ -39,77 +41,105 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md rounded-md bg-white p-6 shadow-md">
-        <h1 className="mb-2 text-2xl font-bold text-gray-800">Login</h1>
-        <p className="mb-6 text-sm text-gray-600">
-          Enter your credentials to access your account
-        </p>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[#8b1a3d] p-4">
+      <div className="mb-8 flex items-center">
+        <div className="mr-4 h-16 w-16 relative">
+          <Image
+            src="/assets/tally-logo.png"
+            alt="Tally Logo"
+            fill
+            className="object-contain"
+          />
+        </div>
+        <h1 className="text-7xl font-medium text-[#F7E84B]">Tally</h1>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-lg">
+        <div className="mb-6 text-center">
+          <h2 className="text-3xl font-bold text-gray-900">Welcome!</h2>
+          <p className="text-gray-600 pt-2">
+            Enter your credentials to access your account.
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit}>
           {error && (
-            <div className="rounded-md border border-red-400 bg-red-100 px-4 py-3 text-sm text-red-700">
+            <div className="mb-4 rounded-md border border-red-400 bg-red-100 px-4 py-3 text-sm text-red-700">
               {error}
             </div>
           )}
 
-          <div>
+          <div className="mb-4">
             <label
               htmlFor="email"
               className="mb-1 block text-sm font-medium text-gray-700"
             >
-              Email
+              Email Address
             </label>
             <input
               id="email"
               type="email"
-              placeholder="name@example.com"
+              placeholder="Placeholder"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring"
+              className="w-full rounded-md bg-gray-50 px-3 py-2 text-sm border border-gray-200 focus:border-[#8b1a3d] focus:outline-none focus:ring focus:ring-[#8b1a3d]/20"
             />
           </div>
 
-          <div>
-            <div className="mb-1 flex items-center justify-between">
-              <label
-                htmlFor="password"
-                className="text-sm font-medium text-gray-700"
-              >
-                Password
-              </label>
-              <Link
-                href="/forgot-password"
-                className="text-sm text-blue-600 hover:underline"
-              >
-                Forgot password?
-              </Link>
-            </div>
+          <div className="mb-6">
+            <label
+              htmlFor="password"
+              className="mb-1 block text-sm font-medium text-gray-700"
+            >
+              Password
+            </label>
             <input
               id="password"
               type="password"
+              placeholder="Placeholder"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring"
+              className="w-full rounded-md bg-gray-50 px-3 py-2 text-sm border border-gray-200 focus:border-[#8b1a3d] focus:outline-none focus:ring focus:ring-[#8b1a3d]/20"
             />
+          </div>
+
+          <div className="mb-6 flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="remember"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300 text-[#8b1a3d] focus:ring-[#8b1a3d]"
+              />
+              <label htmlFor="remember" className="text-sm text-gray-700">
+                Remember me
+              </label>
+            </div>
+            <Link
+              href="/forgot-password"
+              className="text-sm text-[#0a3977] hover:underline"
+            >
+              Forgot Password?
+            </Link>
           </div>
 
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            className="w-full rounded-md border border-[#6a142e] bg-[#6a142e] py-3 text-[#F7E84B] hover:bg-[#5a0f26] transition-colors disabled:opacity-50"
           >
-            {isLoading ? "Logging in..." : "Login"}
+            {isLoading ? "Logging in..." : "Log In"}
           </button>
 
-          <p className="text-center text-sm text-gray-600">
-            Don&apos;t have an account?{" "}
-            <Link href="/register" className="text-blue-600 hover:underline">
+          <div className="mt-6 text-center text-sm">
+            <span className="text-gray-600">Don&apos;t have an account? </span>
+            <Link href="/register" className="text-[#0a3977] hover:underline">
               Register
             </Link>
-          </p>
+          </div>
         </form>
       </div>
     </div>
