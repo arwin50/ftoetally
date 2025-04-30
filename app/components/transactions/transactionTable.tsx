@@ -1,53 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import UpdateTransactionModal from "./updateTransactionModal";
-import { api } from "@/lib/redux/services/auth-service";
 import { Transaction, TransactionTableProps } from "@/types";
 
 export default function TransactionTable({
   selectedIds,
   setSelectedIds,
-  refreshFlag,
   onTransactionUpdated,
-  type,
-  category,
+  transactions,
 }: TransactionTableProps) {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [editingTransactionId, setEditingTransactionId] = useState<
     number | null
   >(null);
-
-  useEffect(() => {
-    async function fetchTransactions() {
-      try {
-        const query = new URLSearchParams();
-        if (type !== "All") query.append("type", type);
-        if (category !== "All") query.append("category", category);
-
-        const accessToken = localStorage.getItem("accessToken");
-        if (!accessToken) {
-          alert("You need to be logged in.");
-          return;
-        }
-
-        const response = await api.get(`/transactions/?${query.toString()}`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-
-        const data = response.data;
-        console.log("Fetched Transactions:", data);
-        setTransactions(data);
-      } catch (error) {
-        console.error("Error fetching transactions:", error);
-        alert("Something went wrong. Please try again later.");
-      }
-    }
-
-    fetchTransactions();
-  }, [refreshFlag, type, category]);
 
   const handleRowClick = (id: number) => {
     setEditingTransactionId(id);
@@ -70,7 +35,6 @@ export default function TransactionTable({
     onTransactionUpdated();
   };
 
-  // Mobile card view for each transaction
   const MobileTransactionCard = ({
     transaction,
   }: {
@@ -115,7 +79,7 @@ export default function TransactionTable({
     <div>
       {/* Mobile view (card layout) */}
       <div className="sm:hidden">
-        {transactions.map((transaction) => (
+        {transactions.map((transaction: any) => (
           <MobileTransactionCard
             key={transaction.id}
             transaction={transaction}
@@ -144,7 +108,7 @@ export default function TransactionTable({
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {transactions.map((transaction) => (
+            {transactions.map((transaction: any) => (
               <tr
                 key={transaction.id}
                 className={

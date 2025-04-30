@@ -55,8 +55,7 @@ export interface TransactionTableProps {
   setSelectedIds: (ids: number[]) => void;
   refreshFlag: boolean;
   onTransactionUpdated: () => void;
-  type: string;
-  category: string;
+  transactions: Transaction[];
 }
 
 export interface UpdateTransactionModalProps {

@@ -1,21 +1,56 @@
 "use client";
 
-import { Trash2 } from "lucide-react";
-import { useState } from "react";
+import { Trash2, Download } from "lucide-react";
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import TransactionFilters from "../components/transactions/transactionFilters";
 import TransactionTable from "../components/transactions/transactionTable";
 import NewTransactionButton from "../components/transactions/newTransactionButton";
 import { api } from "@/lib/redux/services/auth-service";
 import { ConfirmationModal } from "../components/transactions/confimModal";
+import { json2csv } from "json-2-csv";
+
+import { Transaction } from "@/types";
 
 export default function TransactionsPage() {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [refreshFlag, setRefreshFlag] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   const [type, setType] = useState("All");
   const [category, setCategory] = useState("All");
+
+  useEffect(() => {
+    async function fetchTransactions() {
+      try {
+        const query = new URLSearchParams();
+        if (type !== "All") query.append("type", type);
+        if (category !== "All") query.append("category", category);
+
+        const accessToken = localStorage.getItem("accessToken");
+        if (!accessToken) {
+          alert("You need to be logged in.");
+          return;
+        }
+
+        const response = await api.get(`/transactions/?${query.toString()}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        const data = response.data;
+        console.log("Fetched Transactions:", data);
+        setTransactions(data);
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+        alert("Something went wrong. Please try again later.");
+      }
+    }
+
+    fetchTransactions();
+  }, [refreshFlag, type, category]);
 
   const handleCreated = () => {
     toast.success("Transaction added successfully!");
@@ -68,6 +103,24 @@ export default function TransactionsPage() {
     }
   };
 
+  const exportToCsv = () => {
+    try {
+      const csv = json2csv(transactions);
+      console.log(csv);
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.href = url;
+      link.download = "asdsad.csv";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("failed to export", error);
+    }
+  };
+
   return (
     <div className="p-2 sm:p-4 bg-white rounded-lg shadow-sm">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
@@ -77,7 +130,15 @@ export default function TransactionsPage() {
           category={category}
           setCategory={setCategory}
         />
+
         <div className="flex gap-2 w-full sm:w-auto justify-end mt-3 sm:mt-0">
+          <button
+            onClick={exportToCsv}
+            className="bg-[#85193C] text-white px-4 py-2 rounded-lg hover:bg-[#6e142f] transition duration-300 cursor-pointer flex gap-x-2 items-center "
+          >
+            <Download className="w-5 h-5" />
+            Export
+          </button>
           <NewTransactionButton onCreated={handleCreated} />
           <button
             onClick={handleDelete}
@@ -95,8 +156,7 @@ export default function TransactionsPage() {
           setSelectedIds={setSelectedIds}
           refreshFlag={refreshFlag}
           onTransactionUpdated={handleTransactionUpdate}
-          type={type}
-          category={category}
+          transactions={transactions}
         />
       </div>
       <ConfirmationModal
