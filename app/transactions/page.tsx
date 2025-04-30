@@ -53,7 +53,6 @@ export default function TransactionsPage() {
   }, [refreshFlag, type, category]);
 
   const handleCreated = () => {
-    toast.success("Transaction added successfully!");
     console.log("Trigger refresh");
     setRefreshFlag((prev) => !prev);
   };
@@ -64,7 +63,7 @@ export default function TransactionsPage() {
 
   const handleDelete = () => {
     if (selectedIds.length === 0) {
-      alert("No transactions selected for deletion.");
+      toast.error("No transactions selected for deletion.");
       return;
     }
 
@@ -142,7 +141,6 @@ export default function TransactionsPage() {
           <NewTransactionButton onCreated={handleCreated} />
           <button
             onClick={handleDelete}
-            disabled={selectedIds.length === 0}
             className="p-2 bg-white border border-[#85193C] rounded-md hover:bg-[#ba7c91] disabled:opacity-50 flex items-center justify-center cursor-pointer"
             aria-label="Delete selected transactions"
           >
