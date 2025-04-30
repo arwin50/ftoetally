@@ -11,7 +11,7 @@ import {
 import { IoPersonCircleOutline } from "react-icons/io5";
 import { useAppDispatch } from "@/lib/redux/hooks";
 import { logout } from "@/lib/redux/slices/authSlice";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import { useState } from "react";
 import { ConfirmationModal } from "./transactions/confimModal";
@@ -30,6 +30,7 @@ export function Sidebar({
   const router = useRouter();
 
   const [showModal, setShowModal] = useState(false);
+  const pathname = usePathname();
 
   const handleLogout = async () => {
     await dispatch(logout());
@@ -82,8 +83,14 @@ export function Sidebar({
 
         {/* Navigation */}
         <nav className="flex-1">
-          <Link
-            href="/dashboard"
+          <button
+            onClick={() => {
+              if (pathname === "/dashboard") {
+                router.replace(pathname); // Force reload
+              } else {
+                router.push("/dashboard");
+              }
+            }}
             className={`flex items-center ${
               minimized && !isMobile ? "justify-center" : ""
             } ${
@@ -101,9 +108,15 @@ export function Sidebar({
             {(!minimized || isMobile) && (
               <span className="text-lg">Dashboard</span>
             )}
-          </Link>
-          <Link
-            href="/transactions"
+          </button>
+          <button
+            onClick={() => {
+              if (pathname === "/transactions") {
+                router.replace(pathname); // Force reload
+              } else {
+                router.push("/transactions");
+              }
+            }}
             className={`flex items-center ${
               minimized && !isMobile ? "justify-center" : ""
             } ${
@@ -121,7 +134,7 @@ export function Sidebar({
             {(!minimized || isMobile) && (
               <span className="text-lg">Transactions</span>
             )}
-          </Link>
+          </button>
         </nav>
 
         {/* Logout Button */}

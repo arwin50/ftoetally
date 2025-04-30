@@ -41,7 +41,7 @@ export default function Home() {
             className="flex items-center justify-center space-x-2 bg-[#4E112C] hover:bg-[#4A102A] text-yellow-300 py-3 px-4 rounded-md transition-colors"
           >
             <LogIn size={30} />
-            <span className="text-xl font-medium">Sign In</span>
+            <span className="text-xl font-medium">Log In</span>
           </Link>
 
           <Link
