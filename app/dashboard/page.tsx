@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { ProtectedRoute } from "../protected";
 import PageLayout from "../components/pageLayout";
-import { Transaction } from "../components/transactions/transactionTable";
+import { Transaction } from "@/types";
 import { api } from "@/lib/redux/services/auth-service";
 import { Pie, Bar } from "react-chartjs-2";
 import {
@@ -17,6 +17,7 @@ import {
   LinearScale,
   BarElement,
 } from "chart.js";
+import LoadingScreen from "../components/loadingScreen";
 
 ChartJS.register(
   ArcElement,
@@ -147,11 +148,7 @@ export default function DashboardPage() {
   }, [isLoading, isAuthenticated]);
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p>Loading...</p>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   const barOptions = {
@@ -164,7 +161,7 @@ export default function DashboardPage() {
         <div className="flex h-screen bg-gray-100">
           <main className="flex-1 overflow-auto transition-all duration-300">
             <div className="bg-[#4A102A] text-white px-4 py-2">
-              <h1 className="text-2xl font-bold ml-2">Dashboard</h1>
+              <h1 className="text-2xl font-bold text-center">Dashboard</h1>
             </div>
 
             <div className="p-6">
@@ -192,66 +189,6 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Quick Access */}
-              <div className="bg-white p-6 rounded-lg shadow mb-6">
-                <h3 className="text-xl font-semibold mb-4">Quick Access</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <button className="bg-red-200 hover:bg-red-300 transition-colors p-4 rounded flex items-center justify-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-6 w-6 mr-2"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 4v16m8-8H4"
-                      />
-                    </svg>
-                    Add new expense
-                  </button>
-
-                  <button className="bg-green-200 hover:bg-green-300 transition-colors p-4 rounded flex items-center justify-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-6 w-6 mr-2"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 4v16m8-8H4"
-                      />
-                    </svg>
-                    Add new income
-                  </button>
-
-                  <button className="bg-gray-200 hover:bg-gray-300 transition-colors p-4 rounded flex items-center justify-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-6 w-6 mr-2"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 6h16M4 12h16M4 18h16"
-                      />
-                    </svg>
-                    View History
-                  </button>
-                </div>
-              </div>
-
               {/* Balance Summary */}
               <div className="bg-white p-6 rounded-lg shadow">
                 <div className="flex justify-between items-center mb-4">
@@ -267,14 +204,43 @@ export default function DashboardPage() {
 
                   <div className="flex justify-between">
                     <span>Total Expense:</span>
-                    <span className="font-mono">- {totalExpenses}</span>
+                    <span className="font-mono text-red-600">
+                      - {totalExpenses}
+                    </span>
                   </div>
 
                   <div className="border-t pt-4 flex justify-between font-bold">
                     <span>Remaining Balance:</span>
-                    <span className="font-mono">
+                    <span
+                      className={`font-mono ${
+                        totalIncome - totalExpenses > 0
+                          ? "text-green-600"
+                          : totalIncome - totalExpenses < 0
+                          ? "text-red-600"
+                          : "text-gray-500"
+                      }`}
+                    >
                       {totalIncome - totalExpenses}
                     </span>
+                  </div>
+
+                  {/* Indicator Message */}
+                  <div className="pt-2">
+                    {totalIncome - totalExpenses < 0 && (
+                      <p className="text-sm text-red-600 font-medium">
+                        Warning: You're over budget this month!
+                      </p>
+                    )}
+                    {totalIncome - totalExpenses === 0 && (
+                      <p className="text-sm text-gray-500">
+                        You’ve broken even this month.
+                      </p>
+                    )}
+                    {totalIncome - totalExpenses > 0 && (
+                      <p className="text-sm text-green-600">
+                        Great! You’re under budget.
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

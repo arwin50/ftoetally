@@ -6,6 +6,20 @@ import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
+export const metadata = {
+  title: "Toetally – A Budget Tracker App",
+  description:
+    "Track your income, expenses, and stay on top of your budget with Toetally.",
+  keywords: [
+    "budget tracker",
+    "Toetally",
+    "expense manager",
+    "income tracker",
+    "personal finance",
+  ],
+  authors: [{ name: "Toetally Team" }],
+};
+
 export default function RootLayout({
   children,
 }: {

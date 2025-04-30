@@ -6,11 +6,7 @@ import { useState } from "react";
 import { X } from "lucide-react";
 import { api } from "@/lib/redux/services/auth-service";
 import toast from "react-hot-toast";
-
-interface NewTransactionModalProps {
-  onClose: () => void;
-  onSuccess?: () => void;
-}
+import { NewTransactionModalProps } from "@/types";
 
 export default function NewTransactionModal({
   onClose,
@@ -55,25 +51,28 @@ export default function NewTransactionModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-xl">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 md:p-0">
+      <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-black text-xl font-bold">New Transaction</h2>
+          <h2 className="text-black text-lg sm:text-xl font-bold">
+            New Transaction
+          </h2>
           <button
             onClick={onClose}
-            className="text-white hover:bg-[#ba7c91] bg-[#85193C] rounded-md"
+            className="text-white hover:bg-[#ba7c91] bg-[#85193C] rounded-md flex-shrink-0"
+            aria-label="Close modal"
           >
-            <X className="h-8 w-8" />
+            <X className="h-6 w-6 sm:h-8 sm:w-8" />
           </button>
         </div>
 
-        <hr className="border-t border-gray-300 mb-6" />
+        <hr className="border-t border-gray-300 mb-4 sm:mb-6" />
 
-        <form onSubmit={handleSubmit} className="">
-          <div className="flex items-center gap-2 mb-4">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-0">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2 mb-4">
             <label
               htmlFor="modal-type"
-              className="w-28 text-base font-medium text-black"
+              className="text-sm sm:text-base font-medium text-black sm:w-28 mb-1 sm:mb-0"
             >
               Type
             </label>
@@ -82,7 +81,7 @@ export default function NewTransactionModal({
               name="type"
               value={formData.type}
               onChange={handleChange}
-              className={`flex-1 rounded px-3 py-2 text-black
+              className={`w-full sm:flex-1 rounded px-3 py-2 text-black text-sm sm:text-base
                     ${
                       formData.type === "Expense"
                         ? "bg-rose-100"
@@ -100,10 +99,10 @@ export default function NewTransactionModal({
             </select>
           </div>
 
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2 mb-4">
             <label
               htmlFor="subject"
-              className="w-28 text-base font-medium text-black"
+              className="text-sm sm:text-base font-medium text-black sm:w-28 mb-1 sm:mb-0"
             >
               Subject
             </label>
@@ -113,15 +112,15 @@ export default function NewTransactionModal({
               name="subject"
               value={formData.subject}
               onChange={handleChange}
-              className="flex-1 h-9 border border-gray-300 rounded px-3 py-2 text-black"
+              className="w-full sm:flex-1 h-9 border border-gray-300 rounded px-3 py-2 text-black text-sm sm:text-base"
               required
             />
           </div>
 
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2 mb-4">
             <label
               htmlFor="amount"
-              className="w-28 text-base font-medium text-black"
+              className="text-sm sm:text-base font-medium text-black sm:w-28 mb-1 sm:mb-0"
             >
               Amount (PHP)
             </label>
@@ -131,15 +130,15 @@ export default function NewTransactionModal({
               name="amount"
               value={formData.amount}
               onChange={handleChange}
-              className="flex-1 h-9 border border-gray-300 rounded px-3 py-2 text-black"
+              className="w-full sm:flex-1 h-9 border border-gray-300 rounded px-3 py-2 text-black text-sm sm:text-base"
               required
             />
           </div>
 
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2 mb-4">
             <label
               htmlFor="date"
-              className="w-28 text-base font-medium text-black"
+              className="text-sm sm:text-base font-medium text-black sm:w-28 mb-1 sm:mb-0"
             >
               Date
             </label>
@@ -149,15 +148,15 @@ export default function NewTransactionModal({
               name="date"
               value={formData.date}
               onChange={handleChange}
-              className="flex-1 h-9 border border-gray-300 rounded px-3 py-2 text-black"
+              className="w-full sm:flex-1 h-9 border border-gray-300 rounded px-3 py-2 text-black text-sm sm:text-base"
               required
             />
           </div>
 
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2 mb-4">
             <label
               htmlFor="modal-category"
-              className="w-28 text-base font-medium text-black"
+              className="text-sm sm:text-base font-medium text-black sm:w-28 mb-1 sm:mb-0"
             >
               Category
             </label>
@@ -166,7 +165,7 @@ export default function NewTransactionModal({
               name="category"
               value={formData.category}
               onChange={handleChange}
-              className="flex-1 h-9 border border-gray-300 rounded px-3 py-2 text-black"
+              className="w-full sm:flex-1 h-9 border border-gray-300 rounded px-3 py-2 text-black text-sm sm:text-base"
             >
               <option value="Food">Food</option>
               <option value="Transportation">Transportation</option>
@@ -177,10 +176,10 @@ export default function NewTransactionModal({
             </select>
           </div>
 
-          <div className="flex items-start gap-2 mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:gap-2 mb-4">
             <label
               htmlFor="Notes"
-              className="w-28 text-base font-medium text-black pt-2"
+              className="text-sm sm:text-base font-medium text-black sm:w-28 mb-1 sm:mb-0 sm:pt-2"
             >
               Notes
             </label>
@@ -189,15 +188,15 @@ export default function NewTransactionModal({
               name="notes"
               value={formData.notes}
               onChange={handleChange}
-              rows={1}
-              className="flex-1 min-h-[40px] border border-gray-300 rounded px-3 py-2 text-black resize-none overflow-hidden"
+              rows={2}
+              className="w-full sm:flex-1 min-h-[40px] border border-gray-300 rounded px-3 py-2 text-black text-sm sm:text-base resize-none"
             />
           </div>
 
-          <div className="flex justify-center">
+          <div className="flex justify-center mt-6">
             <button
               type="submit"
-              className="px-4 py-2 bg-[#4A102A] text-white rounded-md hover:bg-[#35091D]"
+              className="px-4 py-2 bg-[#4A102A] text-white rounded-md hover:bg-[#35091D] text-sm sm:text-base"
             >
               Save
             </button>

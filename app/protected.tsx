@@ -3,6 +3,7 @@
 import { useAppSelector } from "@/lib/redux/hooks";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import LoadingScreen from "./components/loadingScreen";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -15,7 +16,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }, [isAuthenticated, isLoading, router]);
 
   if (isLoading) {
-    return <div>Loading...</div>; // Optional: You can customize this
+    return <LoadingScreen />; // Optional: You can customize this
   }
 
   if (!isAuthenticated) {

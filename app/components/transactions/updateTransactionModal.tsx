@@ -4,12 +4,7 @@ import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { api } from "@/lib/redux/services/auth-service";
 import toast from "react-hot-toast";
-
-interface UpdateTransactionModalProps {
-  onClose: () => void;
-  onSuccess?: () => void;
-  transactionId: number;
-}
+import { UpdateTransactionModalProps } from "@/types";
 
 export default function UpdateTransactionModal({
   onClose,
@@ -234,7 +229,7 @@ export default function UpdateTransactionModal({
           <div className="flex justify-center">
             <button
               type="submit"
-              className="px-4 py-2 bg-[#4A102A] text-white rounded-md hover:bg-[#35091D]"
+              className="px-4 py-2 bg-[#4A102A] text-white rounded-md hover:bg-[#35091D] cursor-pointer"
             >
               Update
             </button>
