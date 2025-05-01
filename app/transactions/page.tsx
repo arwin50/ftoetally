@@ -20,6 +20,7 @@ export default function TransactionsPage() {
 
   const [type, setType] = useState("All");
   const [category, setCategory] = useState("All");
+  const [month, setMonth] = useState("All");
 
   useEffect(() => {
     async function fetchTransactions() {
@@ -27,6 +28,7 @@ export default function TransactionsPage() {
         const query = new URLSearchParams();
         if (type !== "All") query.append("type", type);
         if (category !== "All") query.append("category", category);
+        if (month !== "All") query.append("month", month);
 
         const accessToken = localStorage.getItem("accessToken");
         if (!accessToken) {
@@ -50,7 +52,7 @@ export default function TransactionsPage() {
     }
 
     fetchTransactions();
-  }, [refreshFlag, type, category]);
+  }, [refreshFlag, type, category, month]);
 
   const handleCreated = () => {
     console.log("Trigger refresh");
@@ -128,6 +130,8 @@ export default function TransactionsPage() {
           setType={setType}
           category={category}
           setCategory={setCategory}
+          month={month}
+          setMonth={setMonth}
         />
 
         <div className="flex gap-2 w-full sm:w-auto justify-end mt-3 sm:mt-0">

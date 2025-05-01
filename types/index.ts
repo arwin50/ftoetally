@@ -48,6 +48,8 @@ export interface TransactionFiltersProps {
   setType: (value: string) => void;
   category: string;
   setCategory: (value: string) => void;
+  month: string;
+  setMonth: (value: string) => void;
 }
 
 export interface TransactionTableProps {
