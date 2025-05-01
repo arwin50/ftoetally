@@ -20,6 +20,19 @@ export default function TransactionsPage() {
 
   const [type, setType] = useState("All");
   const [category, setCategory] = useState("All");
+  const [month, setMonth] = useState("All");
+
+  const getMonthDisplayText = () => {
+    if (month === "All") {
+      return "All time";
+    } else {
+      const currentYear = new Date().getFullYear();
+      const currentMonth = new Date().toLocaleString("default", {
+        month: "long",
+      });
+      return `${currentMonth} ${currentYear}`;
+    }
+  };
 
   useEffect(() => {
     async function fetchTransactions() {
@@ -27,6 +40,7 @@ export default function TransactionsPage() {
         const query = new URLSearchParams();
         if (type !== "All") query.append("type", type);
         if (category !== "All") query.append("category", category);
+        if (month !== "All") query.append("month", month);
 
         const accessToken = localStorage.getItem("accessToken");
         if (!accessToken) {
@@ -50,7 +64,7 @@ export default function TransactionsPage() {
     }
 
     fetchTransactions();
-  }, [refreshFlag, type, category]);
+  }, [refreshFlag, type, category, month]);
 
   const handleCreated = () => {
     console.log("Trigger refresh");
@@ -122,12 +136,21 @@ export default function TransactionsPage() {
 
   return (
     <div className="p-2 sm:p-4 bg-white rounded-lg shadow-sm">
+      {/* Month display header */}
+      <div className="mb-6 pl-2 text-left">
+        <h2 className="text-3xl font-semibold text-[#85193C]">
+          {getMonthDisplayText()}
+        </h2>
+      </div>
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
         <TransactionFilters
           type={type}
           setType={setType}
           category={category}
           setCategory={setCategory}
+          month={month}
+          setMonth={setMonth}
         />
 
         <div className="flex gap-2 w-full sm:w-auto justify-end mt-3 sm:mt-0">
