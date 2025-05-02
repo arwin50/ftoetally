@@ -12,7 +12,7 @@ export default function TransactionFilters({
   const currentMonth = new Date().toLocaleString("default", { month: "long" });
 
   return (
-    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 border">
+    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
       {/* Type Filter */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 w-full sm:w-auto">
         <label
