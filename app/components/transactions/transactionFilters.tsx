@@ -12,7 +12,7 @@ export default function TransactionFilters({
   const currentMonth = new Date().toLocaleString("default", { month: "long" });
 
   return (
-    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full">
+    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 border">
       {/* Type Filter */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 w-full sm:w-auto">
         <label
@@ -80,7 +80,7 @@ export default function TransactionFilters({
             id="month"
             value={month}
             onChange={(e) => setMonth(e.target.value)}
-            className="appearance-none h-10 border border-gray-300 rounded-lg px-2 pr-10 sm:px-3 py-1.5 text-sm sm:text-md text-black w-full"
+            className="appearance-none h-10 border border-gray-300 rounded-lg px-2 pr-10 sm:px-3 py-1.5 text-sm sm:text-md text-black w-full sm:w-auto"
           >
             <option value="All">All</option>
             <option value="Current">{currentMonth}</option>

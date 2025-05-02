@@ -18,6 +18,8 @@ import {
   BarElement,
 } from "chart.js";
 import LoadingScreen from "../components/loadingScreen";
+import NewTransactionModal from "../components/transactions/newTransactionModal";
+import AddMonthlyBudgetModal from "../components/addMonthlyBudgetModal";
 
 ChartJS.register(
   ArcElement,
@@ -34,8 +36,19 @@ export default function DashboardPage() {
   );
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [totalIncome, setTotalIncome] = useState(0);
+
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [addExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
+  const [addIncomeModalOpen, setIsAddIncomeModalOpen] = useState(false);
+  const [addMonthlyBudgetModalOpen, setIsAddMonthlyBudgetModalOpen] =
+    useState(false);
+
   const router = useRouter();
+
+  const handleViewHistory = () => {
+    router.push("/transactions");
+  };
+
   const [pieData, setPieData] = useState<{
     labels: string[];
     datasets: {
@@ -187,6 +200,119 @@ export default function DashboardPage() {
                     <Bar data={barData} options={barOptions} />
                   </div>
                 </div>
+              </div>
+
+              {/* Quick Access */}
+              <div className="bg-white p-6 rounded-lg shadow mb-6">
+                <h3 className="text-xl font-semibold mb-4">Quick Access</h3>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <button
+                    className="bg-red-200 hover:bg-red-300 transition-colors p-4 rounded flex items-center justify-center"
+                    onClick={() => setIsAddExpenseModalOpen(true)}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6 mr-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 4v16m8-8H4"
+                      />
+                    </svg>
+                    Add new expense
+                  </button>
+
+                  <button
+                    className="bg-green-200 hover:bg-green-300 transition-colors p-4 rounded flex items-center justify-center"
+                    onClick={() => setIsAddIncomeModalOpen(true)}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6 mr-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 4v16m8-8H4"
+                      />
+                    </svg>
+                    Add new income
+                  </button>
+
+                  <button
+                    className="bg-[#dcbafe] hover:bg-[#cb97fd] transition-colors p-4 rounded flex items-center justify-center"
+                    onClick={() => setIsAddMonthlyBudgetModalOpen(true)}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6 mr-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 4v16m8-8H4"
+                      />
+                    </svg>
+                    Add monthly budget
+                  </button>
+
+                  <button
+                    className="bg-gray-200 hover:bg-gray-300 transition-colors p-4 rounded flex items-center justify-center"
+                    onClick={handleViewHistory}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6 mr-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 6h16M4 12h16M4 18h16"
+                      />
+                    </svg>
+                    View History
+                  </button>
+                </div>
+
+                {/* Modal */}
+                {addExpenseModalOpen && (
+                  <NewTransactionModal
+                    onClose={() => setIsAddExpenseModalOpen(false)}
+                    onSuccess={() => setIsAddExpenseModalOpen(false)}
+                    defaultType="Expense"
+                  />
+                )}
+                {addIncomeModalOpen && (
+                  <NewTransactionModal
+                    onClose={() => setIsAddIncomeModalOpen(false)}
+                    onSuccess={() => setIsAddIncomeModalOpen(false)}
+                    defaultType="Income"
+                  />
+                )}
+                {addMonthlyBudgetModalOpen && (
+                  <AddMonthlyBudgetModal
+                    isOpen={addMonthlyBudgetModalOpen}
+                    onClose={() => setIsAddMonthlyBudgetModalOpen(false)}
+                    onSuccess={() => setIsAddMonthlyBudgetModalOpen(false)}
+                  />
+                )}
               </div>
 
               {/* Balance Summary */}
