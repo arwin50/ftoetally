@@ -35,8 +35,17 @@ export default function DashboardPage() {
   );
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [totalIncome, setTotalIncome] = useState(0);
+
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [addExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
+  const [addIncomeModalOpen, setIsAddIncomeModalOpen] = useState(false);
+
   const router = useRouter();
+
+  const handleViewHistory = () => {
+    router.push("/transactions");
+  };
+
   const [pieData, setPieData] = useState<{
     labels: string[];
     datasets: {
@@ -194,7 +203,10 @@ export default function DashboardPage() {
               <div className="bg-white p-6 rounded-lg shadow mb-6">
                 <h3 className="text-xl font-semibold mb-4">Quick Access</h3>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <button className="bg-red-200 hover:bg-red-300 transition-colors p-4 rounded flex items-center justify-center">
+                  <button
+                    className="bg-red-200 hover:bg-red-300 transition-colors p-4 rounded flex items-center justify-center"
+                    onClick={() => setIsAddExpenseModalOpen(true)}
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-6 w-6 mr-2"
@@ -212,7 +224,10 @@ export default function DashboardPage() {
                     Add new expense
                   </button>
 
-                  <button className="bg-green-200 hover:bg-green-300 transition-colors p-4 rounded flex items-center justify-center">
+                  <button
+                    className="bg-green-200 hover:bg-green-300 transition-colors p-4 rounded flex items-center justify-center"
+                    onClick={() => setIsAddIncomeModalOpen(true)}
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-6 w-6 mr-2"
@@ -248,7 +263,10 @@ export default function DashboardPage() {
                     Add monthly budget
                   </button>
 
-                  <button className="bg-gray-200 hover:bg-gray-300 transition-colors p-4 rounded flex items-center justify-center">
+                  <button
+                    className="bg-gray-200 hover:bg-gray-300 transition-colors p-4 rounded flex items-center justify-center"
+                    onClick={handleViewHistory}
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-6 w-6 mr-2"
@@ -266,6 +284,22 @@ export default function DashboardPage() {
                     View History
                   </button>
                 </div>
+
+                {/* Modal */}
+                {addExpenseModalOpen && (
+                  <NewTransactionModal
+                    onClose={() => setIsAddExpenseModalOpen(false)}
+                    onSuccess={() => setIsAddExpenseModalOpen(false)}
+                    defaultType="Expense"
+                  />
+                )}
+                {addIncomeModalOpen && (
+                  <NewTransactionModal
+                    onClose={() => setIsAddIncomeModalOpen(false)}
+                    onSuccess={() => setIsAddIncomeModalOpen(false)}
+                    defaultType="Income"
+                  />
+                )}
               </div>
 
               {/* Balance Summary */}

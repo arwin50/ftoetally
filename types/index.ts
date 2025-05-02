@@ -27,7 +27,9 @@ export interface Transaction {
 export interface NewTransactionModalProps {
   onClose: () => void;
   onSuccess?: () => void;
+  defaultType?: "Income" | "Expense";
 }
+
 
 export interface NewTransactionButtonProps {
   onCreated: () => void;

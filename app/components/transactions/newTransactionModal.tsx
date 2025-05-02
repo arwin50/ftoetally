@@ -11,9 +11,10 @@ import { NewTransactionModalProps } from "@/types";
 export default function NewTransactionModal({
   onClose,
   onSuccess,
+  defaultType = "Expense",
 }: NewTransactionModalProps) {
   const [formData, setFormData] = useState({
-    type: "Expense",
+    type: defaultType,
     category: "Food",
     subject: "",
     amount: "",
