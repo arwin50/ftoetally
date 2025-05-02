@@ -33,11 +33,12 @@ export default function AddMonthlyBudgetModal({
     const fetchBudget = async () => {
       try {
         const accessToken = localStorage.getItem("accessToken");
-        const response = await api.get("/budgets/", {
+        const response = await api.get("/transactions/budgets/", {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         });
+        console.log("Fetched Budget Response:", response);
         if (response.status === 200) {
           setBudgetData({
             amount: response.data.amount,
@@ -55,6 +56,7 @@ export default function AddMonthlyBudgetModal({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    console.log(`Changing ${name} to ${value}`);
     setBudgetData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -68,6 +70,8 @@ export default function AddMonthlyBudgetModal({
 
     try {
       const accessToken = localStorage.getItem("accessToken");
+      console.log(updatedBudgetData);
+
       const response = await api.post(
         "transactions/budgets/new/",
         updatedBudgetData,
@@ -77,6 +81,7 @@ export default function AddMonthlyBudgetModal({
           },
         }
       );
+      console.log("Response after submitting budget:", response);
 
       if (response.status === 200) {
         toast.success("Budget updated successfully!");
@@ -140,7 +145,6 @@ export default function AddMonthlyBudgetModal({
               onChange={handleChange}
               className="h-9 border border-gray-300 rounded px-3 py-2 text-black text-sm"
               required
-              disabled
             />
           </div>
 
