@@ -1,5 +1,4 @@
 "use client";
-import Link from "next/link";
 import {
   Home,
   WalletCards,
@@ -9,47 +8,33 @@ import {
   X,
 } from "lucide-react";
 import { IoPersonCircleOutline } from "react-icons/io5";
-import { useAppDispatch } from "@/lib/redux/hooks";
-import { logout } from "@/lib/redux/slices/authSlice";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
-import { useState } from "react";
-import { ConfirmationModal } from "./transactions/confimModal";
 import { SidebarProps } from "@/types";
-import { json2csv } from "json-2-csv";
 
 export function Sidebar({
   activePage,
   userName,
   userEmail,
-  minimized = false,
+  minimized = true,
   onToggle,
   isMobile = false,
   mobileOpen = false,
+  setShowModal,
 }: SidebarProps) {
-  const dispatch = useAppDispatch();
   const router = useRouter();
-
-  const [showModal, setShowModal] = useState(false);
   const pathname = usePathname();
 
-  const handleLogout = async () => {
-    await dispatch(logout());
-    router.push("/login");
-  };
-
-  const handleCancelLogout = () => {
-    setShowModal(false);
-  };
-
-
   return (
-    <div className={`flex h-screen ${isMobile ? "fixed z-20" : ""}`}>
+    <div
+      className={`absolute top-0 left-0 h-full z-20 transition-all duration-300
+        ${minimized && !isMobile ? "w-[80px]" : "w-[304px]"}
+        ${isMobile && !mobileOpen ? "-translate-x-full" : "translate-x-0"}
+      `}
+    >
       <div
-        className={`bg-[#85193C] text-white flex flex-col h-screen transition-all duration-300 
+        className={`bg-[#85193C] text-white flex flex-col h-full transition-all duration-300 
           ${minimized && !isMobile ? "w-[80px]" : "w-[304px]"}
-          ${isMobile ? "fixed left-0 top-0 bottom-0" : ""}
-          ${isMobile && !mobileOpen ? "-translate-x-full" : "translate-x-0"}
         `}
       >
         {/* Close button for mobile */}
@@ -180,24 +165,16 @@ export function Sidebar({
 
       {/* Toggle Button Container - Only visible on desktop */}
       {!isMobile && (
-        <div className="relative">
+        <div className="absolute top-4 right-0 translate-x-1/2">
           <button
             onClick={onToggle}
-            className="absolute top-4 -left-4 rounded-full w-8 h-8 flex items-center justify-center bg-[#8B1A3A] text-[#F7E84B] border border-[#F7E84B] hover:bg-[#6D1530] transition-colors duration-200 cursor-pointer"
+            className="rounded-full w-8 h-8 flex items-center justify-center bg-[#8B1A3A] text-[#F7E84B] border border-[#F7E84B] hover:bg-[#6D1530] transition-colors duration-200 cursor-pointer"
             aria-label={minimized ? "Expand sidebar" : "Collapse sidebar"}
           >
             {minimized ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
           </button>
         </div>
       )}
-
-      <ConfirmationModal
-        isOpen={showModal}
-        onClose={handleCancelLogout}
-        onConfirm={handleLogout}
-        title="Confirming Logout"
-        message="Are you sure you want to log out of your account?"
-      />
     </div>
   );
 }

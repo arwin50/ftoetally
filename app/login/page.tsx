@@ -17,7 +17,6 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
 
   useEffect(() => {
     dispatch(clearError());
@@ -31,12 +30,9 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await dispatch(login({ email, password })).unwrap();
-      router.push("/dashboard");
-    } catch (err) {
-      console.error("Login error:", err);
-    }
+
+    await dispatch(login({ email, password })).unwrap();
+    router.push("/dashboard");
   };
 
   return (
@@ -90,27 +86,6 @@ export default function LoginPage() {
               required
               className="w-full rounded-md bg-gray-50 px-3 py-2 text-sm border border-gray-200 focus:border-[#8b1a3d] focus:outline-none focus:ring focus:ring-[#8b1a3d]/20"
             />
-          </div>
-
-          <div className="mb-6 flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="remember"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300 text-[#8b1a3d] focus:ring-[#8b1a3d]"
-              />
-              <label htmlFor="remember" className="text-sm text-gray-700">
-                Remember me
-              </label>
-            </div>
-            <Link
-              href="/forgot-password"
-              className="text-sm text-[#0a3977] hover:underline"
-            >
-              Forgot Password?
-            </Link>
           </div>
 
           <button

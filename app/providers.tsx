@@ -49,7 +49,7 @@ export function AuthInitializer({ children }: { children: React.ReactNode }) {
       if (refreshTokenT) {
         dispatch(refreshToken()); // Avoid name conflict with the function
       }
-    }, 1 * 60 * 1000); // 15 minutes
+    }, 13 * 60 * 1000);
 
     return () => clearInterval(interval);
   }, [dispatch]);

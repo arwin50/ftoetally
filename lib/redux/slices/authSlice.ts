@@ -50,7 +50,11 @@ export const login = createAsyncThunk<
     localStorage.setItem("refreshToken", response.refresh);
     return response;
   } catch (error: any) {
-    return rejectWithValue(error.message || "Login failed");
+    const message =
+      error.response?.data?.non_field_errors?.[0] ||
+      error.response?.data?.detail ||
+      "Login failed. Please try again.";
+    return rejectWithValue(message);
   }
 });
 

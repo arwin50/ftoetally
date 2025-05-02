@@ -13,6 +13,7 @@ export interface SidebarProps {
   onToggle?: () => void;
   isMobile?: boolean;
   mobileOpen?: boolean;
+  setShowModal: (value: boolean) => void;
 }
 
 export interface Transaction {
@@ -29,7 +30,6 @@ export interface NewTransactionModalProps {
   onSuccess?: () => void;
   defaultType?: "Income" | "Expense";
 }
-
 
 export interface NewTransactionButtonProps {
   onCreated: () => void;
@@ -66,4 +66,15 @@ export interface UpdateTransactionModalProps {
   onClose: () => void;
   onSuccess?: () => void;
   transactionId: number;
+}
+
+export interface MonthlyBudget {
+  amount: string;
+  month: string;
+}
+
+export interface AddMonthlyBudgetModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess?: () => void;
 }

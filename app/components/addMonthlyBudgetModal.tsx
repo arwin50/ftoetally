@@ -4,25 +4,14 @@ import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import toast from "react-hot-toast";
 import { api } from "@/lib/redux/services/auth-service";
+import { MonthlyBudget, AddMonthlyBudgetModalProps } from "@/types";
 
-interface MonthlyBudget {
-  amount: string;
-  month: string;
-}
-
-interface AddMonthlyBudgetModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess?: () => void;
-}
 
 export default function AddMonthlyBudgetModal({
   isOpen,
   onClose,
   onSuccess,
 }: AddMonthlyBudgetModalProps) {
-  if (!isOpen) return null;
-
   const [budgetData, setBudgetData] = useState<MonthlyBudget>({
     amount: "",
     month: new Date().toISOString().slice(0, 7), // e.g., "2025-05"
@@ -53,6 +42,8 @@ export default function AddMonthlyBudgetModal({
 
     fetchBudget();
   }, []);
+
+  if (!isOpen) return null;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -90,6 +81,7 @@ export default function AddMonthlyBudgetModal({
       onClose();
     } catch (error) {
       toast.error("Failed to create or update the budget. Please try again.");
+      console.error("Error submitting budget:", error);
     }
   };
 
