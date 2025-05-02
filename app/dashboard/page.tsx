@@ -19,6 +19,7 @@ import {
 } from "chart.js";
 import LoadingScreen from "../components/loadingScreen";
 import NewTransactionModal from "../components/transactions/newTransactionModal";
+import AddMonthlyBudgetModal from "../components/addMonthlyBudgetModal";
 
 ChartJS.register(
   ArcElement,
@@ -39,6 +40,8 @@ export default function DashboardPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [addExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
   const [addIncomeModalOpen, setIsAddIncomeModalOpen] = useState(false);
+  const [addMonthlyBudgetModalOpen, setIsAddMonthlyBudgetModalOpen] =
+    useState(false);
 
   const router = useRouter();
 
@@ -245,7 +248,10 @@ export default function DashboardPage() {
                     Add new income
                   </button>
 
-                  <button className="bg-[#dcbafe] hover:bg-[#cb97fd] transition-colors p-4 rounded flex items-center justify-center">
+                  <button
+                    className="bg-[#dcbafe] hover:bg-[#cb97fd] transition-colors p-4 rounded flex items-center justify-center"
+                    onClick={() => setIsAddMonthlyBudgetModalOpen(true)}
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-6 w-6 mr-2"
@@ -298,6 +304,13 @@ export default function DashboardPage() {
                     onClose={() => setIsAddIncomeModalOpen(false)}
                     onSuccess={() => setIsAddIncomeModalOpen(false)}
                     defaultType="Income"
+                  />
+                )}
+                {addMonthlyBudgetModalOpen && (
+                  <AddMonthlyBudgetModal
+                    isOpen={addMonthlyBudgetModalOpen}
+                    onClose={() => setIsAddMonthlyBudgetModalOpen(false)}
+                    onSuccess={() => setIsAddMonthlyBudgetModalOpen(false)}
                   />
                 )}
               </div>
