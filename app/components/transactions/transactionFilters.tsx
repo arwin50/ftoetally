@@ -57,7 +57,6 @@ export default function TransactionFilters({
             <option value="Transportation">Transportation</option>
             <option value="Entertainment">Entertainment</option>
             <option value="Utilities">Utilities</option>
-            <option value="Salary">Salary</option>
             <option value="Other">Other</option>
           </select>
           <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 text-xs">
