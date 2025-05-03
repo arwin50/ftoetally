@@ -49,15 +49,18 @@ export default function TransactionsPage() {
         if (!accessToken) return;
 
         const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, "0");
-        const monthStr = `${year}-${month}-01`;
+        const currentMonthYear = `${now.getFullYear()}-${String(
+          now.getMonth() + 1
+        ).padStart(2, "0")}`;
 
-        const response = await api.get(`/transactions/budgets/`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
+        const response = await api.get(
+          `/transactions/budgets/?month=${currentMonthYear}-01`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
 
         if (response.data && response.data.amount) {
           setCurrentBudget(response.data.amount);

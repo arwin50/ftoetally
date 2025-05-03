@@ -6,7 +6,6 @@ import toast from "react-hot-toast";
 import { api } from "@/lib/redux/services/auth-service";
 import { MonthlyBudget, AddMonthlyBudgetModalProps } from "@/types";
 
-
 export default function AddMonthlyBudgetModal({
   isOpen,
   onClose,

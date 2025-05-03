@@ -28,7 +28,18 @@ export default function NewTransactionModal({
     >
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    setFormData((prev) => {
+      if (name === "type") {
+        if (value === "Income") {
+          return { ...prev, type: value, category: "Salary" };
+        } else if (value === "Expense" && prev.category === "Salary") {
+          return { ...prev, type: value, category: "Food" };
+        }
+      }
+
+      return { ...prev, [name]: value };
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -154,28 +165,29 @@ export default function NewTransactionModal({
             />
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2 mb-4">
-            <label
-              htmlFor="modal-category"
-              className="text-sm sm:text-base font-medium text-black sm:w-28 mb-1 sm:mb-0"
-            >
-              Category
-            </label>
-            <select
-              id="modal-category"
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              className="w-full sm:flex-1 h-9 border border-gray-300 rounded px-3 py-2 text-black text-sm sm:text-base"
-            >
-              <option value="Food">Food</option>
-              <option value="Transportation">Transportation</option>
-              <option value="Entertainment">Entertainment</option>
-              <option value="Utilities">Utilities</option>
-              <option value="Salary">Salary</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
+          {formData.type === "Expense" && (
+            <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2 mb-4">
+              <label
+                htmlFor="modal-category"
+                className="text-sm sm:text-base font-medium text-black sm:w-28 mb-1 sm:mb-0"
+              >
+                Category
+              </label>
+              <select
+                id="modal-category"
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                className="w-full sm:flex-1 h-9 border border-gray-300 rounded px-3 py-2 text-black text-sm sm:text-base"
+              >
+                <option value="Food">Food</option>
+                <option value="Transportation">Transportation</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Utilities">Utilities</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          )}
 
           <div className="flex flex-col sm:flex-row sm:items-start sm:gap-2 mb-4">
             <label

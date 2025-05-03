@@ -41,7 +41,6 @@ export default function DashboardPage() {
   ).padStart(2, "0")}`;
 
   const [totalExpenses, setTotalExpenses] = useState(0);
-  const [totalIncome, setTotalIncome] = useState(0);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [addExpenseModalOpen, setAddExpenseModalOpen] = useState(false);
   const [addIncomeModalOpen, setAddIncomeModalOpen] = useState(false);
@@ -52,7 +51,7 @@ export default function DashboardPage() {
 
   const [currentBudget, setCurrentBudget] = useState(0);
 
-  const balance = totalIncome - totalExpenses;
+  const balance = currentBudget - totalExpenses;
 
   const handleViewHistory = () => {
     router.push("/transactions");
@@ -92,34 +91,6 @@ export default function DashboardPage() {
     ],
   });
 
-  const fetchCurrentBudget = async () => {
-    try {
-      const accessToken = localStorage.getItem("accessToken");
-      if (!accessToken) return;
-
-      const response = await api.get(`/transactions/budgets/`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-      if (response.data && response.data.amount) {
-        setCurrentBudget(response.data.amount);
-      } else {
-        setCurrentBudget(0);
-      }
-    } catch (error) {
-      console.error("Failed to fetch budget:", error);
-      setCurrentBudget(0);
-    }
-  };
-
-  useEffect(() => {
-    if (!isLoading && isAuthenticated) {
-      fetchCurrentBudget();
-    }
-  }, [isLoading, isAuthenticated]);
-
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.push("/login");
@@ -135,25 +106,25 @@ export default function DashboardPage() {
           return;
         }
 
-        const budgetRes = await api.get("/transactions/budgets/", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-
+        const budgetRes = await api.get(
+          `/transactions/budgets/?month=${selectedMonthYear}-01`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+        console.log("Budget:", budgetRes.data);
         const monthlyBudget = Number(budgetRes.data.amount);
-        setTotalIncome(monthlyBudget);
+        setCurrentBudget(monthlyBudget);
 
         // 2. Fetch expenses
         const query = new URLSearchParams();
         query.append("type", "Expense");
 
         // Dynamically add selected month-year if not 'Current'
-        if (selectedMonthYear !== "All") {
-          query.append("month", selectedMonthYear);
-        } else {
-          query.append("month", "All");
-        }
+
+        query.append("month", selectedMonthYear);
 
         const expenseRes = await api.get(`/transactions/?${query.toString()}`, {
           headers: {
@@ -264,13 +235,13 @@ export default function DashboardPage() {
         <div className="flex  bg-gray-50">
           <main className="flex-1 overflow-hidden transition-all duration-300">
             {/* Header */}
-            <div className="bg-gradient-to-r from-[#4A102A] to-[#6B1A3A] text-white px-6 py-4 shadow-md">
+            <div className="bg-gradient-to-r from-[#4A102A] to-[#6B1A3A] text-white px-6 py-2 shadow-md">
               <h1 className="text-2xl font-bold text-center">
                 Financial Dashboard
               </h1>
             </div>
 
-            <div className="p-4 max-w-7xl mx-auto">
+            <div className="p-3  max-w-7xl mx-auto">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-3xl font-bold text-gray-800">
                   Monthly Overview
@@ -281,7 +252,6 @@ export default function DashboardPage() {
                     onChange={(e) => setSelectedMonthYear(e.target.value)}
                     className="border border-gray-300 rounded px-3 py-2 text-sm"
                   >
-                    <option value="All">All</option>
                     {availableMonths.map((month) => (
                       <option key={month} value={month}>
                         {new Date(`${month}-01`).toLocaleString("default", {
@@ -303,18 +273,23 @@ export default function DashboardPage() {
                       Expense Categories
                     </h3>
                   </div>
-                  <div className="p-3">
-                    <div className="aspect-square max-w-[200px] mx-auto">
+                  <div className="p-3 relative">
+                    <div className="aspect-square max-w-[200px] mx-auto relative">
                       <Pie data={pieData} />
+                      {totalExpenses === 0 && (
+                        <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-500 font-medium">
+                          No expenses yet
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
 
-                {/* Income vs Expenses */}
+                {/* Budget vs Expenses */}
                 <div className="flex-1 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-md">
                   <div className="p-3 border-b border-gray-100">
                     <h3 className="text-lg font-semibold text-gray-800">
-                      Income vs Expenses
+                      Budget vs Expenses
                     </h3>
                   </div>
                   <div className="p-3">
@@ -344,9 +319,9 @@ export default function DashboardPage() {
                   </div>
                   <div className="p-3 space-y-5">
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Total Income:</span>
+                      <span className="text-gray-600">Budget:</span>
                       <span className="font-mono font-medium text-gray-800">
-                        {formatCurrency(totalIncome)}
+                        {formatCurrency(currentBudget)}
                       </span>
                     </div>
 
@@ -451,7 +426,7 @@ export default function DashboardPage() {
                 <div className="p-5">
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                     <button
-                      className="bg-gradient-to-br from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 
+                      className="bg-gradient-to-br cursor-pointer from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 
                       transition-all duration-300 p-4 rounded-lg flex flex-col items-center justify-center gap-3 
                       shadow-sm hover:shadow border border-red-200 group"
                       onClick={() => setAddExpenseModalOpen(true)}
@@ -465,7 +440,7 @@ export default function DashboardPage() {
                     </button>
 
                     <button
-                      className="bg-gradient-to-br from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 
+                      className="bg-gradient-to-b cursor-pointer from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 
                       transition-all duration-300 p-4 rounded-lg flex flex-col items-center justify-center gap-3 
                       shadow-sm hover:shadow border border-green-200 group"
                       onClick={() => setAddIncomeModalOpen(true)}
@@ -479,7 +454,7 @@ export default function DashboardPage() {
                     </button>
 
                     <button
-                      className="bg-gradient-to-br from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 
+                      className="bg-gradient-to-br cursor-pointer from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 
                       transition-all duration-300 p-4 rounded-lg flex flex-col items-center justify-center gap-3 
                       shadow-sm hover:shadow border border-purple-200 group"
                       onClick={() => setAddMonthlyBudgetModalOpen(true)}
@@ -493,7 +468,7 @@ export default function DashboardPage() {
                     </button>
 
                     <button
-                      className="bg-gradient-to-br from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 
+                      className="bg-gradient-to-br cursor-pointer from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 
                       transition-all duration-300 p-4 rounded-lg flex flex-col items-center justify-center gap-3 
                       shadow-sm hover:shadow border border-gray-200 group"
                       onClick={handleViewHistory}

@@ -26,7 +26,7 @@ export default function TransactionFilters({
             id="type"
             value={type}
             onChange={(e) => setType(e.target.value)}
-            className="appearance-none h-10 border border-gray-300 rounded-lg px-2 pr-10 sm:px-3 py-1.5 text-sm sm:text-md text-black w-full"
+            className="appearance-none h-10 border border-gray-300 rounded-lg ps-4 pe-7 py-1.5 text-sm sm:text-md text-black w-full"
           >
             <option value="All">All</option>
             <option value="Expense">Expense</option>
@@ -51,14 +51,14 @@ export default function TransactionFilters({
             id="category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="appearance-none h-10 border border-gray-300 rounded-lg px-2 pr-10 sm:px-3 py-1.5 text-sm sm:text-md text-black w-full"
+            className="appearance-none h-10 border border-gray-300 rounded-lg ps-4 pe-7 py-1.5 text-sm sm:text-md text-black w-full"
           >
             <option value="All">All</option>
             <option value="Food">Food</option>
             <option value="Transportation">Transportation</option>
             <option value="Entertainment">Entertainment</option>
             <option value="Utilities">Utilities</option>
-            <option value="Salary">Salary</option>
+
             <option value="Other">Other</option>
           </select>
           <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 text-xs">
@@ -80,7 +80,7 @@ export default function TransactionFilters({
             id="month"
             value={month}
             onChange={(e) => setMonth(e.target.value)}
-            className="appearance-none h-10 border border-gray-300 rounded-lg px-2 pr-10 sm:px-3 py-1.5 text-sm sm:text-md text-black w-full sm:w-auto"
+            className="appearance-none h-10 border border-gray-300 rounded-lg ps-4 pe-7 py-1.5 text-sm sm:text-md text-black w-full sm:w-auto"
           >
             <option value="All">All</option>
             <option value="Current">{currentMonth}</option>
