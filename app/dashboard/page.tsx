@@ -339,7 +339,7 @@ export default function DashboardPage() {
 
                       <div className="flex justify-between items-center">
                         <span className="text-sm sm:text-base text-gray-600">
-                          Total Expense:
+                          Total Expenses:
                         </span>
                         <span className="font-mono font-medium text-sm sm:text-base text-red-600">
                           - {formatCurrency(totalExpenses)}
@@ -497,10 +497,13 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="lg:col-span-1 bg-white rounded-2xl shadow-md border border-gray-200 p-4 sm:p-6 transition-all hover:shadow-lg">
-                    <div className="p-2 sm:p-3 border-b border-gray-100">
+                    <div className="p-2 sm:p-3 border-b border-gray-100 flex justify-between items-center">
                       <h3 className="text-base sm:text-lg font-semibold text-gray-800">
                         Remaining Balance
                       </h3>
+                      <span className="text-xs sm:text-sm font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                        All Time
+                      </span>
                     </div>
 
                     <div className="flex h-[120px] sm:h-[150px] justify-center items-center">
@@ -515,6 +518,72 @@ export default function DashboardPage() {
                           totalIncomeAllTime - totalExpensesAllTime
                         )}
                       </p>
+                    </div>
+
+                    <div className="pt-2">
+                      {totalIncomeAllTime - totalExpensesAllTime < 0 && (
+                        <div className="flex items-center text-red-600 bg-red-50 p-2 sm:p-3 rounded-lg">
+                          <svg
+                            className="h-4 w-4 sm:h-5 sm:w-5 mr-2"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                            />
+                          </svg>
+                          <p className="text-xs sm:text-sm font-medium">
+                            Warning: You are in debt! Please check your
+                            expenses.
+                          </p>
+                        </div>
+                      )}
+
+                      {totalIncomeAllTime == 0 && (
+                        <div className="flex items-center text-yellow-600 bg-yellow-50 p-2 sm:p-3 rounded-lg">
+                          <svg
+                            className="h-4 w-4 sm:h-5 sm:w-5 mr-2"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                          <p className="text-xs sm:text-sm font-medium">
+                            You have no income recorded yet.
+                          </p>
+                        </div>
+                      )}
+
+                      {totalIncomeAllTime - totalExpensesAllTime > 0 && (
+                        <div className="flex items-center text-green-600 bg-green-50 p-2 sm:p-3 rounded-lg">
+                          <svg
+                            className="h-4 w-4 sm:h-5 sm:w-5 mr-2"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                          <p className="text-xs sm:text-sm font-medium">
+                            Great! You still have money left!
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
