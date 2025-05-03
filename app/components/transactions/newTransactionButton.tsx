@@ -18,10 +18,11 @@ export default function NewTransactionButton({
         aria-label="Add new transaction"
       >
         <Plus className="h-4 w-4" />
-        <span className="hidden xs:inline sm:inline  whitespace-nowrap">
+        <span className="hidden lg:hidden xl:inline whitespace-nowrap">
           New Transaction
         </span>
-        <span className="xs:hidden sm:hidden">New</span>
+
+        <span className="inline xl:hidden">New</span>
       </button>
 
       {isModalOpen && (
