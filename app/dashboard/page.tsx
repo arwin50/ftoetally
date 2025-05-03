@@ -250,7 +250,7 @@ export default function DashboardPage() {
               </h1>
             </div>
 
-            <div className="p-3 max-w-7xl mx-auto">
+            <div className="py-3 px-4 w-full mx-auto">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
                 <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
                   Overview
@@ -277,14 +277,14 @@ export default function DashboardPage() {
                 {/* Dashboard Cards */}
                 <div className="flex flex-col lg:flex-row gap-4 mb-4">
                   {/* Categorical Expenses */}
-                  <div className="w-full lg:w-1/3 bg-white rounded-2xl shadow-md border border-gray-200 p-4 sm:p-6 transition-all hover:shadow-lg">
+                  <div className="w-full flex flex-col lg:w-1/3 bg-white rounded-2xl shadow-md border border-gray-200 p-4 sm:p-6 transition-all hover:shadow-lg">
                     <div className="p-2 sm:p-3 border-b border-gray-100">
                       <h3 className="text-base sm:text-lg font-semibold text-gray-800">
                         Expense Categories
                       </h3>
                     </div>
-                    <div className="p-2 sm:p-3 relative">
-                      <div className="aspect-square max-w-[200px] mx-auto relative">
+                    <div className="p-2 sm:p-3 relative flex-1 flex justify-center items-center">
+                      <div className="aspect-square max-w-[200px] mx-auto relative  ">
                         <Pie data={pieData} />
                         {totalExpenses === 0 && (
                           <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-500 font-medium">
@@ -296,13 +296,13 @@ export default function DashboardPage() {
                   </div>
 
                   {/* Budget vs Expenses */}
-                  <div className="w-full lg:w-1/3 bg-white rounded-2xl shadow-md border border-gray-200 p-4 sm:p-6 transition-all hover:shadow-lg">
+                  <div className="w-full  flex flex-col lg:w-1/3 bg-white rounded-2xl shadow-md border border-gray-200 p-4 sm:p-6 transition-all hover:shadow-lg">
                     <div className="p-2 sm:p-3 border-b border-gray-100">
                       <h3 className="text-base sm:text-lg font-semibold text-gray-800">
                         Budget vs Expenses
                       </h3>
                     </div>
-                    <div className="p-2 sm:p-3">
+                    <div className="p-2 sm:p-3 flex-1 flex justify-center items-center">
                       <div className="aspect-square max-w-[200px] mx-auto relative">
                         <Bar data={barData} options={barOptions} />
                       </div>
@@ -315,7 +315,7 @@ export default function DashboardPage() {
                       <h3 className="text-base sm:text-lg font-semibold text-gray-800">
                         Budget Summary
                       </h3>
-                      <span className="text-xs sm:text-sm font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                      <span className="text-xs  font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                         {selectedMonthYear === currentMonthYear
                           ? "This month"
                           : new Date(selectedMonthYear + "-01").toLocaleString(
@@ -351,7 +351,7 @@ export default function DashboardPage() {
                           Remaining Budget:
                         </span>
                         <span
-                          className={`font-mono font-bold text-base sm:text-lg ${getBalanceColor(
+                          className={`font-mono font-bold text-base sm:text-base ${getBalanceColor(
                             balance
                           )}`}
                         >
@@ -497,16 +497,16 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="lg:col-span-1 bg-white rounded-2xl shadow-md border border-gray-200 p-4 sm:p-6 transition-all hover:shadow-lg">
-                    <div className="p-2 sm:p-3 border-b border-gray-100 flex justify-between items-center">
+                    <div className="p-2 sm:p-3 border-b border-gray-100 flex flex-wrap justify-between items-center gap-2">
                       <h3 className="text-base sm:text-lg font-semibold text-gray-800">
                         Remaining Balance
                       </h3>
-                      <span className="text-xs sm:text-sm font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                      <span className="text-xs  font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                         All Time
                       </span>
                     </div>
 
-                    <div className="flex h-[120px] sm:h-[150px] justify-center items-center">
+                    <div className="flex h-[100px] sm:h-[100px] justify-center items-center">
                       <p
                         className={`text-xl sm:text-2xl md:text-3xl font-extrabold ${
                           totalIncomeAllTime - totalExpensesAllTime > 0
@@ -520,7 +520,7 @@ export default function DashboardPage() {
                       </p>
                     </div>
 
-                    <div className="pt-2">
+                    <div className="">
                       {totalIncomeAllTime - totalExpensesAllTime < 0 && (
                         <div className="flex items-center text-red-600 bg-red-50 p-2 sm:p-3 rounded-lg">
                           <svg
