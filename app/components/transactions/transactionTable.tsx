@@ -26,6 +26,16 @@ export default function TransactionTable({
     }
   };
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  const paginatedTransactions = transactions.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const totalPages = Math.ceil(transactions.length / itemsPerPage);
+
   const handleModalClose = () => {
     setEditingTransactionId(null);
   };
@@ -79,7 +89,7 @@ export default function TransactionTable({
     <div>
       {/* Mobile view (card layout) */}
       <div className="sm:hidden">
-        {transactions.map((transaction: any) => (
+        {paginatedTransactions.map((transaction: any) => (
           <MobileTransactionCard
             key={transaction.id}
             transaction={transaction}
@@ -108,7 +118,7 @@ export default function TransactionTable({
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {transactions.map((transaction: any) => (
+            {paginatedTransactions.map((transaction: any) => (
               <tr
                 key={transaction.id}
                 className={
@@ -149,6 +159,27 @@ export default function TransactionTable({
             ))}
           </tbody>
         </table>
+      </div>
+      <div className="flex justify-center mt-4 mb-4 gap-2">
+        <button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+          className="px-2 py-0.5 text-sm bg-gray-200 rounded disabled:opacity-50"
+        >
+          ˂
+        </button>
+        <span className="px-3 py-1">
+          {currentPage} / {totalPages}
+        </span>
+        <button
+          onClick={() =>
+            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+          }
+          disabled={currentPage === totalPages}
+          className="px-2 py-0.5 text-sm bg-gray-200 rounded disabled:opacity-50"
+        >
+          ˃
+        </button>
       </div>
 
       {editingTransactionId && (
