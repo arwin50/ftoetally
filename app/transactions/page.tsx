@@ -9,10 +9,8 @@ import NewTransactionButton from "../components/transactions/newTransactionButto
 import { api } from "@/lib/redux/services/auth-service";
 import { ConfirmationModal } from "../components/transactions/confimModal";
 import AddMonthlyBudgetModal from "../components/addMonthlyBudgetModal";
-
 import { json2csv } from "json-2-csv";
-
-import { Transaction } from "@/types";
+import type { Transaction } from "@/types";
 
 export default function TransactionsPage() {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -45,21 +43,13 @@ export default function TransactionsPage() {
   useEffect(() => {
     async function fetchCurrentBudget() {
       try {
-        const accessToken = localStorage.getItem("accessToken");
-        if (!accessToken) return;
-
         const now = new Date();
         const currentMonthYear = `${now.getFullYear()}-${String(
           now.getMonth() + 1
         ).padStart(2, "0")}`;
 
         const response = await api.get(
-          `/transactions/budgets/?month=${currentMonthYear}-01`,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
+          `/transactions/budgets/?month=${currentMonthYear}-01`
         );
 
         if (response.data && response.data.amount) {
@@ -78,22 +68,9 @@ export default function TransactionsPage() {
 
   const handleUpdateBudget = async (newBudget: number) => {
     try {
-      console.log("clicked");
-      const accessToken = localStorage.getItem("accessToken");
-      if (!accessToken) {
-        alert("You need to be logged in.");
-        return;
-      }
-
-      const response = await api.put(
-        "/transactions/budgets/",
-        { amount: newBudget },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      const response = await api.put("/transactions/budgets/", {
+        amount: newBudget,
+      });
 
       if (response.status === 200) {
         toast.success("Budget updated successfully!");
@@ -116,17 +93,7 @@ export default function TransactionsPage() {
         if (category !== "All") query.append("category", category);
         if (month !== "All") query.append("month", month);
 
-        const accessToken = localStorage.getItem("accessToken");
-        if (!accessToken) {
-          alert("You need to be logged in.");
-          return;
-        }
-
-        const response = await api.get(`/transactions/?${query.toString()}`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
+        const response = await api.get(`/transactions/?${query.toString()}`);
 
         const data = response.data;
         console.log("Fetched Transactions:", data);
@@ -160,18 +127,8 @@ export default function TransactionsPage() {
 
   const handleDeleteConfirmed = async () => {
     try {
-      const accessToken = localStorage.getItem("accessToken");
-      if (!accessToken) {
-        alert("You need to be logged in.");
-        return;
-      }
-
       for (const id of selectedIds) {
-        const response = await api.delete(`/transactions/delete/${id}/`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
+        const response = await api.delete(`/transactions/delete/${id}/`);
 
         if (response.status !== 200) {
           console.error(`Failed to delete transaction with ID ${id}`);
@@ -198,12 +155,13 @@ export default function TransactionsPage() {
       const link = document.createElement("a");
       const url = URL.createObjectURL(blob);
       link.href = url;
-      link.download = "asdsad.csv";
+      link.download = `${month}Transactions.csv`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } catch (error) {
+      toast.error("Failed to export transactions");
       console.error("failed to export", error);
     }
   };
@@ -211,38 +169,42 @@ export default function TransactionsPage() {
   return (
     <div className="p-2 sm:p-4 bg-white rounded-lg shadow-sm">
       {/* Month display header */}
-      <div className="mb-6 pl-2 text-left">
-        <h2 className="text-3xl font-semibold text-[#85193C]">
+      <div className="mb-4 sm:mb-6 pl-2 text-left">
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-[#85193C]">
           {getMonthDisplayText()}
         </h2>
       </div>
 
-      <div className="flex flex-wrap sm:flex-nowrap justify-between gap-3 mb-4 items-center">
-        <TransactionFilters
-          type={type}
-          setType={setType}
-          category={category}
-          setCategory={setCategory}
-          month={month}
-          setMonth={setMonth}
-        />
+      <div className="flex flex-col sm:flex-row justify-between gap-3 mb-4 items-start sm:items-center">
+        <div className="w-full sm:max-w-[70%]">
+          <TransactionFilters
+            type={type}
+            setType={setType}
+            category={category}
+            setCategory={setCategory}
+            month={month}
+            setMonth={setMonth}
+          />
+        </div>
 
-        <div className="flex gap-2 w-full sm:w-auto justify-end mt-3 sm:mt-0">
+        <div className="flex  gap-2 w-full sm:w-auto  justify-end mt-3 sm:mt-0">
           <span
-            className="bg-[#614d7c] text-white px-4 py-2 rounded-lg hover:bg-[#4d3d62] transition duration-300 cursor-pointer flex gap-x-2 items-center "
+            className="bg-[#614d7c] text-white px-3 py-2 text-sm sm:text-base rounded-lg hover:bg-[#4d3d62] transition duration-300 cursor-pointer flex gap-x-2 items-center whitespace-nowrap"
             onClick={handleBudgetClick}
             title="Click to edit budget"
           >
             Monthly Budget: ₱{currentBudget ?? "..."}
           </span>
-          <NewTransactionButton onCreated={handleCreated} />
-          <button
-            onClick={handleDelete}
-            className="p-2 bg-white border border-[#85193C] rounded-md hover:bg-[#ba7c91] disabled:opacity-50 flex items-center justify-center cursor-pointer"
-            aria-label="Delete selected transactions"
-          >
-            <Trash2 className="h-5 w-5 text-[#85193C]" />
-          </button>
+          <div className="flex gap-2">
+            <NewTransactionButton onCreated={handleCreated} />
+            <button
+              onClick={handleDelete}
+              className="p-2 bg-white border border-[#85193C] rounded-md hover:bg-[#ba7c91] disabled:opacity-50 flex items-center justify-center cursor-pointer"
+              aria-label="Delete selected transactions"
+            >
+              <Trash2 className="h-5 w-5 text-[#85193C]" />
+            </button>
+          </div>
 
           <AddMonthlyBudgetModal
             isOpen={isBudgetModalOpen}
@@ -254,7 +216,8 @@ export default function TransactionsPage() {
           />
         </div>
       </div>
-      <div className="mt-4">
+
+      <div className="mt-4 overflow-x-auto">
         <TransactionTable
           selectedIds={selectedIds}
           setSelectedIds={setSelectedIds}
@@ -263,15 +226,17 @@ export default function TransactionsPage() {
           transactions={transactions}
         />
       </div>
-      <div className="pt-4">
+
+      <div className="flex justify-end">
         <button
           onClick={exportToCsv}
-          className="bg-white border border-[#85193C] text-[#85193C] px-4 py-2 rounded-lg hover:bg-[#ba7c91] transition duration-300 cursor-pointer flex gap-x-2 items-center "
+          className=" bg-white border border-[#85193C] text-[#85193C] px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg hover:bg-[#ba7c91] transition duration-300 cursor-pointer flex gap-x-2 items-center text-sm sm:text-base"
         >
-          <Download className="w-5 h-5" />
+          <Download className="w-4 h-4 sm:w-5 sm:h-5" />
           Export
         </button>
       </div>
+
       <ConfirmationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

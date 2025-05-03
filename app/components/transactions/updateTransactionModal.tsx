@@ -23,18 +23,7 @@ export default function UpdateTransactionModal({
   useEffect(() => {
     async function fetchTransaction() {
       try {
-        const accessToken = localStorage.getItem("accessToken");
-
-        if (!accessToken) {
-          alert("You need to be logged in.");
-          return;
-        }
-
-        const response = await api.get(`/transactions/${transactionId}/`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
+        const response = await api.get(`/transactions/${transactionId}/`);
 
         const data = response.data;
         setFormData(data);
@@ -64,21 +53,9 @@ export default function UpdateTransactionModal({
     e.preventDefault();
 
     try {
-      const accessToken = localStorage.getItem("accessToken");
-      if (!accessToken) {
-        alert("You need to be logged in.");
-        return;
-      }
-
       const response = await api.put(
         `/transactions/update/${transactionId}/`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
+        formData
       );
 
       toast.success("Transaction updated successfully!");

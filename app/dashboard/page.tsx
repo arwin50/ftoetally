@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { ProtectedRoute } from "../protected";
 import PageLayout from "../components/pageLayout";
-import { Transaction } from "@/types";
+import type { Transaction } from "@/types";
 import { api } from "@/lib/redux/services/auth-service";
 import { Pie, Bar } from "react-chartjs-2";
 import {
@@ -100,19 +100,8 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchBudgetAndExpenses = async () => {
       try {
-        const accessToken = localStorage.getItem("accessToken");
-        if (!accessToken) {
-          alert("You need to be logged in.");
-          return;
-        }
-
         const budgetRes = await api.get(
-          `/transactions/budgets/?month=${selectedMonthYear}-01`,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
+          `/transactions/budgets/?month=${selectedMonthYear}-01`
         );
         console.log("Budget:", budgetRes.data);
         const monthlyBudget = Number(budgetRes.data.amount);
@@ -126,11 +115,7 @@ export default function DashboardPage() {
 
         query.append("month", selectedMonthYear);
 
-        const expenseRes = await api.get(`/transactions/?${query.toString()}`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
+        const expenseRes = await api.get(`/transactions/?${query.toString()}`);
 
         const expenses = expenseRes.data;
         console.log("Expenses:", expenses);
@@ -186,12 +171,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchAvailableMonths = async () => {
       try {
-        const accessToken = localStorage.getItem("accessToken");
-        if (!accessToken) return;
-
-        const res = await api.get("/transactions/budgets/all/", {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
+        const res = await api.get("/transactions/budgets/all/");
 
         setAvailableMonths(res.data);
       } catch (error) {
@@ -232,25 +212,25 @@ export default function DashboardPage() {
   return (
     <ProtectedRoute>
       <PageLayout activePage="dashboard">
-        <div className="flex  bg-gray-50">
+        <div className="flex bg-gray-50 min-h-screen">
           <main className="flex-1 overflow-hidden transition-all duration-300">
             {/* Header */}
-            <div className="bg-gradient-to-r from-[#4A102A] to-[#6B1A3A] text-white px-6 py-2 shadow-md">
-              <h1 className="text-2xl font-bold text-center">
+            <div className="bg-gradient-to-r from-[#4A102A] to-[#6B1A3A] text-white px-4 sm:px-6 py-2 shadow-md">
+              <h1 className="text-xl sm:text-2xl font-bold text-center">
                 Financial Dashboard
               </h1>
             </div>
 
-            <div className="p-3  max-w-7xl mx-auto">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-3xl font-bold text-gray-800">
+            <div className=" p-3 max-w-7xl mx-auto">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
                   Monthly Overview
                 </h2>
-                <div className="flex justify-end ">
+                <div className="flex justify-start sm:justify-end">
                   <select
                     value={selectedMonthYear}
                     onChange={(e) => setSelectedMonthYear(e.target.value)}
-                    className="border border-gray-300 rounded px-3 py-2 text-sm"
+                    className="border border-gray-300 rounded px-2 py-1 sm:px-3 sm:py-2 text-sm w-full sm:w-auto"
                   >
                     {availableMonths.map((month) => (
                       <option key={month} value={month}>
@@ -265,9 +245,9 @@ export default function DashboardPage() {
               </div>
 
               {/* Dashboard Cards */}
-              <div className="flex gap-6 mb-4">
+              <div className="flex flex-col lg:flex-row gap-4 mb-4">
                 {/* Categorical Expenses */}
-                <div className="flex-1 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-md">
+                <div className="w-full lg:flex-1 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-md">
                   <div className="p-3 border-b border-gray-100">
                     <h3 className="text-lg font-semibold text-gray-800">
                       Expense Categories
@@ -286,7 +266,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Budget vs Expenses */}
-                <div className="flex-1 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-md">
+                <div className="w-full lg:flex-1 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-md">
                   <div className="p-3 border-b border-gray-100">
                     <h3 className="text-lg font-semibold text-gray-800">
                       Budget vs Expenses
@@ -300,12 +280,12 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Balance Summary */}
-                <div className="flex-1 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-md">
-                  <div className="p-3 border-b border-gray-100 flex justify-between items-center">
+                <div className="w-full lg:flex-1 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-md">
+                  <div className="p-3 border-b border-gray-100 flex justify-between items-center flex-wrap gap-2">
                     <h3 className="text-lg font-semibold text-gray-800">
                       Balance Summary
                     </h3>
-                    <span className="text-sm font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                    <span className="text-xs sm:text-sm font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                       {selectedMonthYear === currentMonthYear
                         ? "This month"
                         : new Date(selectedMonthYear + "-01").toLocaleString(
@@ -317,7 +297,7 @@ export default function DashboardPage() {
                           )}
                     </span>
                   </div>
-                  <div className="p-3 space-y-5">
+                  <div className="p-3 space-y-4 sm:space-y-5">
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Budget:</span>
                       <span className="font-mono font-medium text-gray-800">
@@ -332,12 +312,12 @@ export default function DashboardPage() {
                       </span>
                     </div>
 
-                    <div className="border-t pt-5 flex justify-between items-center">
+                    <div className="border-t pt-4 sm:pt-5 flex justify-between items-center">
                       <span className="font-semibold text-gray-800">
                         Remaining Balance:
                       </span>
                       <span
-                        className={`font-mono font-bold text-lg ${getBalanceColor(
+                        className={`font-mono font-bold text-base sm:text-lg ${getBalanceColor(
                           balance
                         )}`}
                       >
@@ -347,9 +327,9 @@ export default function DashboardPage() {
 
                     <div className="pt-2">
                       {totalExpenses > currentBudget && (
-                        <div className="flex items-center text-red-600 bg-red-50 p-3 rounded-lg">
+                        <div className="flex items-start sm:items-center text-red-600 bg-red-50 p-2 sm:p-3 rounded-lg">
                           <svg
-                            className="h-5 w-5 mr-2"
+                            className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5 sm:mt-0"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -361,7 +341,7 @@ export default function DashboardPage() {
                               d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
                             />
                           </svg>
-                          <p className="text-sm font-medium">
+                          <p className="text-xs sm:text-sm font-medium">
                             Warning: You've exceeded your budget of{" "}
                             {formatCurrency(currentBudget)}!
                           </p>
@@ -369,9 +349,9 @@ export default function DashboardPage() {
                       )}
 
                       {totalExpenses === currentBudget && (
-                        <div className="flex items-center text-yellow-600 bg-yellow-50 p-3 rounded-lg">
+                        <div className="flex items-start sm:items-center text-yellow-600 bg-yellow-50 p-2 sm:p-3 rounded-lg">
                           <svg
-                            className="h-5 w-5 mr-2"
+                            className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5 sm:mt-0"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -383,7 +363,7 @@ export default function DashboardPage() {
                               d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                             />
                           </svg>
-                          <p className="text-sm font-medium">
+                          <p className="text-xs sm:text-sm font-medium">
                             Heads up: You've hit your monthly budget exactly{" "}
                             {formatCurrency(currentBudget)}!
                           </p>
@@ -391,9 +371,9 @@ export default function DashboardPage() {
                       )}
 
                       {totalExpenses < currentBudget && (
-                        <div className="flex items-center text-green-600 bg-green-50 p-3 rounded-lg">
+                        <div className="flex items-start sm:items-center text-green-600 bg-green-50 p-2 sm:p-3 rounded-lg">
                           <svg
-                            className="h-5 w-5 mr-2"
+                            className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5 sm:mt-0"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -405,7 +385,7 @@ export default function DashboardPage() {
                               d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                             />
                           </svg>
-                          <p className="text-sm font-medium">
+                          <p className="text-xs sm:text-sm font-medium">
                             Great! You're under your monthly budget of{" "}
                             {formatCurrency(currentBudget)}!
                           </p>
@@ -423,60 +403,60 @@ export default function DashboardPage() {
                     Quick Actions
                   </h3>
                 </div>
-                <div className="p-5">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="p-3 sm:p-5">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
                     <button
                       className="bg-gradient-to-br cursor-pointer from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 
-                      transition-all duration-300 p-4 rounded-lg flex flex-col items-center justify-center gap-3 
+                      transition-all duration-300 p-2 sm:p-4 rounded-lg flex flex-col items-center justify-center gap-2 sm:gap-3 
                       shadow-sm hover:shadow border border-red-200 group"
                       onClick={() => setAddExpenseModalOpen(true)}
                     >
-                      <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:shadow group-hover:scale-105 transition-all duration-300">
-                        <PlusIcon className="h-6 w-6 text-red-500" />
+                      <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:shadow group-hover:scale-105 transition-all duration-300">
+                        <PlusIcon className="h-4 w-4 sm:h-6 sm:w-6 text-red-500" />
                       </div>
-                      <span className="font-medium text-gray-800">
+                      <span className="font-medium text-xs sm:text-sm md:text-base text-gray-800 text-center">
                         Add Expense
                       </span>
                     </button>
 
                     <button
                       className="bg-gradient-to-b cursor-pointer from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 
-                      transition-all duration-300 p-4 rounded-lg flex flex-col items-center justify-center gap-3 
+                      transition-all duration-300 p-2 sm:p-4 rounded-lg flex flex-col items-center justify-center gap-2 sm:gap-3 
                       shadow-sm hover:shadow border border-green-200 group"
                       onClick={() => setAddIncomeModalOpen(true)}
                     >
-                      <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:shadow group-hover:scale-105 transition-all duration-300">
-                        <PlusIcon className="h-6 w-6 text-green-500" />
+                      <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:shadow group-hover:scale-105 transition-all duration-300">
+                        <PlusIcon className="h-4 w-4 sm:h-6 sm:w-6 text-green-500" />
                       </div>
-                      <span className="font-medium text-gray-800">
+                      <span className="font-medium text-xs sm:text-sm md:text-base text-gray-800 text-center">
                         Add Income
                       </span>
                     </button>
 
                     <button
                       className="bg-gradient-to-br cursor-pointer from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 
-                      transition-all duration-300 p-4 rounded-lg flex flex-col items-center justify-center gap-3 
+                      transition-all duration-300 p-2 sm:p-4 rounded-lg flex flex-col items-center justify-center gap-2 sm:gap-3 
                       shadow-sm hover:shadow border border-purple-200 group"
                       onClick={() => setAddMonthlyBudgetModalOpen(true)}
                     >
-                      <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:shadow group-hover:scale-105 transition-all duration-300">
-                        <PlusIcon className="h-6 w-6 text-purple-500" />
+                      <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:shadow group-hover:scale-105 transition-all duration-300">
+                        <PlusIcon className="h-4 w-4 sm:h-6 sm:w-6 text-purple-500" />
                       </div>
-                      <span className="font-medium text-gray-800">
+                      <span className="font-medium text-xs sm:text-sm md:text-base text-gray-800 text-center">
                         Set Budget
                       </span>
                     </button>
 
                     <button
                       className="bg-gradient-to-br cursor-pointer from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 
-                      transition-all duration-300 p-4 rounded-lg flex flex-col items-center justify-center gap-3 
+                      transition-all duration-300 p-2 sm:p-4 rounded-lg flex flex-col items-center justify-center gap-2 sm:gap-3 
                       shadow-sm hover:shadow border border-gray-200 group"
                       onClick={handleViewHistory}
                     >
-                      <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:shadow group-hover:scale-105 transition-all duration-300">
-                        <ListIcon className="h-6 w-6 text-gray-500" />
+                      <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:shadow group-hover:scale-105 transition-all duration-300">
+                        <ListIcon className="h-4 w-4 sm:h-6 sm:w-6 text-gray-500" />
                       </div>
-                      <span className="font-medium text-gray-800">
+                      <span className="font-medium text-xs sm:text-sm md:text-base text-gray-800 text-center">
                         View History
                       </span>
                     </button>

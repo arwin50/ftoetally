@@ -20,22 +20,13 @@ export default function AddMonthlyBudgetModal({
   useEffect(() => {
     const fetchBudget = async () => {
       try {
-        const accessToken = localStorage.getItem("accessToken");
-
-        if (!accessToken) return;
-
         const now = new Date();
         const currentMonthYear = `${now.getFullYear()}-${String(
           now.getMonth() + 1
         ).padStart(2, "0")}`;
 
         const response = await api.get(
-          `/transactions/budgets/?month=${currentMonthYear}-01`,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
+          `/transactions/budgets/?month=${currentMonthYear}-01`
         );
         console.log("Fetched Budget Response:", response.data.month);
 
@@ -71,17 +62,11 @@ export default function AddMonthlyBudgetModal({
     };
 
     try {
-      const accessToken = localStorage.getItem("accessToken");
       console.log(updatedBudgetData);
 
       const response = await api.post(
         "transactions/budgets/new/",
-        updatedBudgetData,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
+        updatedBudgetData
       );
       console.log("Response after submitting budget:", response);
 

@@ -46,12 +46,7 @@ export default function NewTransactionModal({
     e.preventDefault();
 
     try {
-      const accessToken = localStorage.getItem("accessToken");
-      const response = await api.post("/transactions/new/", formData, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+      const response = await api.post("/transactions/new/", formData);
       toast.success("Transaction added successfully!");
       if (onSuccess) {
         onSuccess();
