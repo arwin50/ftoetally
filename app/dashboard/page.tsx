@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAppSelector} from "@/lib/redux/hooks";
+import { useAppSelector } from "@/lib/redux/hooks";
 import { ProtectedRoute } from "../protected";
 import PageLayout from "../components/pageLayout";
 import { Transaction } from "@/types";
@@ -46,6 +46,8 @@ export default function DashboardPage() {
   const [addMonthlyBudgetModalOpen, setAddMonthlyBudgetModalOpen] =
     useState(false);
 
+  const [currentBudget, setCurrentBudget] = useState(0);
+
   const balance = totalIncome - totalExpenses;
 
   const handleViewHistory = () => {
@@ -85,6 +87,32 @@ export default function DashboardPage() {
       },
     ],
   });
+
+  useEffect(() => {
+    async function fetchCurrentBudget() {
+      try {
+        const accessToken = localStorage.getItem("accessToken");
+        if (!accessToken) return;
+
+        const response = await api.get(`/transactions/budgets/`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        if (response.data && response.data.amount) {
+          setCurrentBudget(response.data.amount);
+        } else {
+          setCurrentBudget(0);
+        }
+      } catch (error) {
+        console.error("Failed to fetch budget:", error);
+        setCurrentBudget(0);
+      }
+    }
+
+    fetchCurrentBudget();
+  }, []);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -282,7 +310,7 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="pt-2">
-                      {balance < 0 && (
+                      {totalExpenses > currentBudget && (
                         <div className="flex items-center text-red-600 bg-red-50 p-3 rounded-lg">
                           <svg
                             className="h-5 w-5 mr-2"
@@ -298,12 +326,14 @@ export default function DashboardPage() {
                             />
                           </svg>
                           <p className="text-sm font-medium">
-                            Warning: You're over budget this month!
+                            Warning: You've exceeded your budget of{" "}
+                            {formatCurrency(currentBudget)}!
                           </p>
                         </div>
                       )}
-                      {balance === 0 && (
-                        <div className="flex items-center text-gray-600 bg-gray-50 p-3 rounded-lg">
+
+                      {totalExpenses === currentBudget && (
+                        <div className="flex items-center text-yellow-600 bg-yellow-50 p-3 rounded-lg">
                           <svg
                             className="h-5 w-5 mr-2"
                             fill="none"
@@ -318,11 +348,13 @@ export default function DashboardPage() {
                             />
                           </svg>
                           <p className="text-sm font-medium">
-                            You've broken even this month.
+                            Heads up: You've hit your monthly budget exactly{" "}
+                            {formatCurrency(currentBudget)}!
                           </p>
                         </div>
                       )}
-                      {balance > 0 && (
+
+                      {totalExpenses < currentBudget && (
                         <div className="flex items-center text-green-600 bg-green-50 p-3 rounded-lg">
                           <svg
                             className="h-5 w-5 mr-2"
@@ -338,7 +370,8 @@ export default function DashboardPage() {
                             />
                           </svg>
                           <p className="text-sm font-medium">
-                            Great! You're under budget.
+                            Great! You're under your monthly budget of{" "}
+                            {formatCurrency(currentBudget)}!
                           </p>
                         </div>
                       )}
@@ -440,7 +473,6 @@ export default function DashboardPage() {
             onSuccess={() => setAddMonthlyBudgetModalOpen(false)}
           />
         )}
-       
       </PageLayout>
     </ProtectedRoute>
   );
