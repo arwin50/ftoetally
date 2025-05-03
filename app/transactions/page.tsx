@@ -193,8 +193,12 @@ export default function TransactionsPage() {
 
   const exportToCsv = () => {
     try {
-      const csv = json2csv(transactions);
-      console.log(csv);
+      const formatted = transactions.map((tx) => ({
+        ...tx,
+        date: new Date(tx.date).toISOString().split("T")[0], // formats to YYYY-MM-DD
+      }));
+
+      const csv = json2csv(formatted);
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
       const link = document.createElement("a");
       const url = URL.createObjectURL(blob);

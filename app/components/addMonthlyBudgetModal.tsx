@@ -10,7 +10,7 @@ export default function AddMonthlyBudgetModal({
   isOpen,
   onClose,
   onSuccess,
-  remainingBalance = 0,
+  remainingBalance,
 }: AddMonthlyBudgetModalProps) {
   const [budgetData, setBudgetData] = useState<MonthlyBudget>({
     amount: "",
