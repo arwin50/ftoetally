@@ -31,14 +31,12 @@ export default function NewTransactionModal({
     const { name, value } = e.target;
 
     setFormData((prev) => {
-      if (name === "type") {
-        if (value === "Income") {
-          return { ...prev, type: value, category: "Salary" };
-        } else if (value === "Expense" && prev.category === "Salary") {
-          return { ...prev, type: value, category: "Food" };
-        }
+      // If the type changes to "Income", set category to "Other"
+      if (name === "type" && value === "Income") {
+        return { ...prev, type: value, category: "Other" };
       }
 
+      // Otherwise, just update the field normally
       return { ...prev, [name]: value };
     });
   };
