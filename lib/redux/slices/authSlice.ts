@@ -16,9 +16,6 @@ type AuthState = {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  totalIncomeAllTime: number; // Add total income
-  totalExpensesAllTime: number; // Add total expenses
-  totalBalance: number; // Add total balance
 };
 
 type LoginResponse = {
@@ -39,9 +36,6 @@ const initialState: AuthState = {
   isAuthenticated: false,
   isLoading: true,
   error: null,
-  totalIncomeAllTime: 0, // Default to 0
-  totalExpensesAllTime: 0, // Default to 0
-  totalBalance: 0, // Default to 0
 };
 
 // Async thunks
@@ -157,15 +151,6 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setTotalIncomeAndExpenses: (
-      state,
-      action: PayloadAction<{ income: number; expenses: number }>
-    ) => {
-      const { income, expenses } = action.payload;
-      state.totalIncomeAllTime = income;
-      state.totalExpensesAllTime = expenses;
-      state.totalBalance = income - expenses; // Calculate total balance
-    },
     clearError: (state) => {
       state.error = null;
     },
@@ -235,6 +220,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearError, setLoading, setTotalIncomeAndExpenses } =
-  authSlice.actions;
+export const { clearError, setLoading } = authSlice.actions;
 export default authSlice.reducer;
