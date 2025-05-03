@@ -516,7 +516,9 @@ export default function DashboardPage() {
                     <div className="flex h-[120px] sm:h-[150px] justify-center items-center">
                       <p
                         className={`text-xl sm:text-2xl md:text-3xl font-extrabold ${
-                          balance > 0 ? "text-green-600" : "text-red-600"
+                          totalIncomeAllTime - totalExpensesAllTime > 0
+                            ? "text-green-600"
+                            : "text-red-600"
                         } items-center font-mono tracking-tight`}
                       >
                         {formatCurrency(

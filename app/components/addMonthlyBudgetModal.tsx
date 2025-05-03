@@ -10,7 +10,7 @@ export default function AddMonthlyBudgetModal({
   isOpen,
   onClose,
   onSuccess,
-  remainingBalance,
+  remainingBalance = 0,
 }: AddMonthlyBudgetModalProps) {
   const [budgetData, setBudgetData] = useState<MonthlyBudget>({
     amount: "",
@@ -57,7 +57,7 @@ export default function AddMonthlyBudgetModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (Number(budgetData.amount) > balance) {
+    if (Number(budgetData.amount) > remainingBalance) {
       toast.error("Budget exceeds your current balance.");
       return;
     }

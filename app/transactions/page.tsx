@@ -210,6 +210,14 @@ export default function TransactionsPage() {
     }
   };
 
+  const displayMonthName = (month: string) => {
+    if (month === "All") return "All time";
+
+    const [year, monthNum] = month.split("-");
+    const date = new Date(Number(year), Number(monthNum) - 1); // JS months are 0-based
+    return date.toLocaleString("default", { month: "long", year: "numeric" });
+  };
+
   return (
     <div className="p-2 sm:p-4 bg-white rounded-lg shadow-sm">
       {/* Month display header */}
@@ -238,7 +246,8 @@ export default function TransactionsPage() {
             onClick={handleBudgetClick}
             title="Click to edit budget"
           >
-            Monthly Budget: ₱{currentBudget ?? "..."}
+            {displayMonthName(month)}:{" "}
+            {month === "All" ? "₱..." : `₱${currentBudget}`}
           </span>
           <div className="flex gap-2">
             <NewTransactionButton onCreated={handleCreated} />
