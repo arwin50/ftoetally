@@ -97,6 +97,36 @@ export default function DashboardPage() {
     }
   }, [isAuthenticated, isLoading, router]);
 
+  const [totalIncomeAllTime, setTotalIncomeAllTime] = useState(0);
+
+  useEffect(() => {
+    const fetchTotalIncome = async () => {
+      try {
+        const accessToken = localStorage.getItem("accessToken");
+        if (!accessToken) return;
+
+        const query = new URLSearchParams();
+        query.append("type", "Income");
+
+        const res = await api.get(`/transactions/?${query.toString()}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        const total = res.data.reduce(
+          (sum: number, tx: Transaction) => sum + Number(tx.amount),
+          0
+        );
+        setTotalIncomeAllTime(total);
+      } catch (err) {
+        console.error("Error fetching total income:", err);
+      }
+    };
+
+    if (!isLoading && isAuthenticated) {
+      fetchTotalIncome();
+    }
+  }, [isLoading, isAuthenticated]);
+
   useEffect(() => {
     const fetchBudgetAndExpenses = async () => {
       try {
@@ -241,222 +271,237 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Dashboard Cards */}
-              <div className="flex flex-col lg:flex-row gap-4 mb-4">
-                {/* Categorical Expenses */}
-                <div className="w-full lg:flex-1 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-md">
-                  <div className="p-3 border-b border-gray-100">
-                    <h3 className="text-lg font-semibold text-gray-800">
-                      Expense Categories
-                    </h3>
+              <div>
+                {/* Dashboard Cards */}
+                <div className="flex gap-6 mb-4">
+                  {/* Categorical Expenses */}
+                  <div className="flex-1 bg-white rounded-2xl shadow-md border border-gray-200 p-6 transition-all hover:shadow-lg">
+                    <div className="p-3 border-b border-gray-100">
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        Expense Categories
+                      </h3>
+                    </div>
+                    <div className="p-3 relative">
+                      <div className="aspect-square max-w-[200px] mx-auto relative">
+                        <Pie data={pieData} />
+                        {totalExpenses === 0 && (
+                          <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-500 font-medium">
+                            No expenses yet
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div className="p-3 relative">
-                    <div className="aspect-square max-w-[200px] mx-auto relative">
-                      <Pie data={pieData} />
-                      {totalExpenses === 0 && (
-                        <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-500 font-medium">
-                          No expenses yet
-                        </div>
-                      )}
+
+                  {/* Budget vs Expenses */}
+                  <div className="flex-1 bg-white rounded-2xl shadow-md border border-gray-200 p-6 transition-all hover:shadow-lg">
+                    <div className="p-3 border-b border-gray-100">
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        Budget vs Expenses
+                      </h3>
+                    </div>
+                    <div className="p-3">
+                      <div className="aspect-square max-w-[200px] mx-auto relative">
+                        <Bar data={barData} options={barOptions} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Balance Summary */}
+                  <div className="flex-1 bg-white rounded-2xl shadow-md border border-gray-200 p-6 transition-all hover:shadow-lg">
+                    <div className="p-3 border-b border-gray-100 flex justify-between items-center">
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        Balance Summary
+                      </h3>
+                      <span className="text-sm font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                        {selectedMonthYear === currentMonthYear
+                          ? "This month"
+                          : new Date(selectedMonthYear + "-01").toLocaleString(
+                              "default",
+                              {
+                                month: "long",
+                                year: "numeric",
+                              }
+                            )}
+                      </span>
+                    </div>
+                    <div className="p-3 space-y-5">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Budget:</span>
+                        <span className="font-mono font-medium text-gray-800">
+                          {formatCurrency(currentBudget)}
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Total Expense:</span>
+                        <span className="font-mono font-medium text-red-600">
+                          - {formatCurrency(totalExpenses)}
+                        </span>
+                      </div>
+
+                      <div className="border-t pt-5 flex justify-between items-center">
+                        <span className="font-semibold text-gray-800">
+                          Remaining Balance:
+                        </span>
+                        <span
+                          className={`font-mono font-bold text-lg ${getBalanceColor(
+                            balance
+                          )}`}
+                        >
+                          {formatCurrency(balance)}
+                        </span>
+                      </div>
+
+                      <div className="pt-2">
+                        {totalExpenses > currentBudget && (
+                          <div className="flex items-center text-red-600 bg-red-50 p-3 rounded-lg">
+                            <svg
+                              className="h-5 w-5 mr-2"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                              />
+                            </svg>
+                            <p className="text-sm font-medium">
+                              Warning: You've exceeded your budget!
+                            </p>
+                          </div>
+                        )}
+
+                        {totalExpenses === currentBudget && (
+                          <div className="flex items-center text-yellow-600 bg-yellow-50 p-3 rounded-lg">
+                            <svg
+                              className="h-5 w-5 mr-2"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
+                            </svg>
+                            <p className="text-sm font-medium">
+                              Heads up: You've hit your monthly budget!
+                            </p>
+                          </div>
+                        )}
+
+                        {totalExpenses < currentBudget && (
+                          <div className="flex items-center text-green-600 bg-green-50 p-3 rounded-lg">
+                            <svg
+                              className="h-5 w-5 mr-2"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
+                            </svg>
+                            <p className="text-sm font-medium">
+                              Great! You're under your monthly budget!
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Budget vs Expenses */}
-                <div className="w-full lg:flex-1 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-md">
-                  <div className="p-3 border-b border-gray-100">
-                    <h3 className="text-lg font-semibold text-gray-800">
-                      Budget vs Expenses
-                    </h3>
-                  </div>
-                  <div className="p-3">
-                    <div className="aspect-square max-w-[200px] mx-auto relative">
-                      <Bar data={barData} options={barOptions} />
+                <div className="grid grid-cols-3">
+                  {/* Quick Access */}
+                  <div className="col-span-2 mr-2 bg-white rounded-2xl shadow-md border border-gray-200 p-6 transition-all hover:shadow-lg">
+                    <div className="p-3 border-b border-gray-100">
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        Quick Actions
+                      </h3>
                     </div>
-                  </div>
-                </div>
-
-                {/* Balance Summary */}
-                <div className="w-full lg:flex-1 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-md">
-                  <div className="p-3 border-b border-gray-100 flex justify-between items-center flex-wrap gap-2">
-                    <h3 className="text-lg font-semibold text-gray-800">
-                      Balance Summary
-                    </h3>
-                    <span className="text-xs sm:text-sm font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                      {selectedMonthYear === currentMonthYear
-                        ? "This month"
-                        : new Date(selectedMonthYear + "-01").toLocaleString(
-                            "default",
-                            {
-                              month: "long",
-                              year: "numeric",
-                            }
-                          )}
-                    </span>
-                  </div>
-                  <div className="p-3 space-y-4 sm:space-y-5">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Budget:</span>
-                      <span className="font-mono font-medium text-gray-800">
-                        {formatCurrency(currentBudget)}
-                      </span>
-                    </div>
-
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Total Expense:</span>
-                      <span className="font-mono font-medium text-red-600">
-                        - {formatCurrency(totalExpenses)}
-                      </span>
-                    </div>
-
-                    <div className="border-t pt-4 sm:pt-5 flex justify-between items-center">
-                      <span className="font-semibold text-gray-800">
-                        Remaining Balance:
-                      </span>
-                      <span
-                        className={`font-mono font-bold text-base sm:text-lg ${getBalanceColor(
-                          balance
-                        )}`}
-                      >
-                        {formatCurrency(balance)}
-                      </span>
-                    </div>
-
-                    <div className="pt-2">
-                      {totalExpenses > currentBudget && (
-                        <div className="flex items-start sm:items-center text-red-600 bg-red-50 p-2 sm:p-3 rounded-lg">
-                          <svg
-                            className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5 sm:mt-0"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                            />
-                          </svg>
-                          <p className="text-xs sm:text-sm font-medium">
-                            Warning: You've exceeded your budget of{" "}
-                            {formatCurrency(currentBudget)}!
-                          </p>
-                        </div>
-                      )}
-
-                      {totalExpenses === currentBudget && (
-                        <div className="flex items-start sm:items-center text-yellow-600 bg-yellow-50 p-2 sm:p-3 rounded-lg">
-                          <svg
-                            className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5 sm:mt-0"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                          <p className="text-xs sm:text-sm font-medium">
-                            Heads up: You've hit your monthly budget exactly{" "}
-                            {formatCurrency(currentBudget)}!
-                          </p>
-                        </div>
-                      )}
-
-                      {totalExpenses < currentBudget && (
-                        <div className="flex items-start sm:items-center text-green-600 bg-green-50 p-2 sm:p-3 rounded-lg">
-                          <svg
-                            className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5 sm:mt-0"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                          <p className="text-xs sm:text-sm font-medium">
-                            Great! You're under your monthly budget of{" "}
-                            {formatCurrency(currentBudget)}!
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Quick Access */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-md">
-                <div className="p-3 border-b border-gray-100">
-                  <h3 className="text-lg font-semibold text-gray-800">
-                    Quick Actions
-                  </h3>
-                </div>
-                <div className="p-3 sm:p-5">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
-                    <button
-                      className="bg-gradient-to-br cursor-pointer from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 
-                      transition-all duration-300 p-2 sm:p-4 rounded-lg flex flex-col items-center justify-center gap-2 sm:gap-3 
+                    <div className="p-5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                        <button
+                          className="bg-gradient-to-br cursor-pointer from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 
+                      transition-all duration-300 p-4 rounded-lg flex flex-col items-center justify-center gap-3 
                       shadow-sm hover:shadow border border-red-200 group"
-                      onClick={() => setAddExpenseModalOpen(true)}
-                    >
-                      <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:shadow group-hover:scale-105 transition-all duration-300">
-                        <PlusIcon className="h-4 w-4 sm:h-6 sm:w-6 text-red-500" />
-                      </div>
-                      <span className="font-medium text-xs sm:text-sm md:text-base text-gray-800 text-center">
-                        Add Expense
-                      </span>
-                    </button>
+                          onClick={() => setAddExpenseModalOpen(true)}
+                        >
+                          <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:shadow group-hover:scale-105 transition-all duration-300">
+                            <PlusIcon className="h-6 w-6 text-red-500" />
+                          </div>
+                          <span className="font-medium text-gray-800">
+                            Add Expense
+                          </span>
+                        </button>
 
-                    <button
-                      className="bg-gradient-to-b cursor-pointer from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 
-                      transition-all duration-300 p-2 sm:p-4 rounded-lg flex flex-col items-center justify-center gap-2 sm:gap-3 
+                        <button
+                          className="bg-gradient-to-b cursor-pointer from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 
+                      transition-all duration-300 p-4 rounded-lg flex flex-col items-center justify-center gap-3 
                       shadow-sm hover:shadow border border-green-200 group"
-                      onClick={() => setAddIncomeModalOpen(true)}
-                    >
-                      <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:shadow group-hover:scale-105 transition-all duration-300">
-                        <PlusIcon className="h-4 w-4 sm:h-6 sm:w-6 text-green-500" />
-                      </div>
-                      <span className="font-medium text-xs sm:text-sm md:text-base text-gray-800 text-center">
-                        Add Income
-                      </span>
-                    </button>
+                          onClick={() => setAddIncomeModalOpen(true)}
+                        >
+                          <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:shadow group-hover:scale-105 transition-all duration-300">
+                            <PlusIcon className="h-6 w-6 text-green-500" />
+                          </div>
+                          <span className="font-medium text-gray-800">
+                            Add Income
+                          </span>
+                        </button>
 
-                    <button
-                      className="bg-gradient-to-br cursor-pointer from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 
-                      transition-all duration-300 p-2 sm:p-4 rounded-lg flex flex-col items-center justify-center gap-2 sm:gap-3 
+                        <button
+                          className="bg-gradient-to-br cursor-pointer from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 
+                      transition-all duration-300 p-4 rounded-lg flex flex-col items-center justify-center gap-3 
                       shadow-sm hover:shadow border border-purple-200 group"
-                      onClick={() => setAddMonthlyBudgetModalOpen(true)}
-                    >
-                      <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:shadow group-hover:scale-105 transition-all duration-300">
-                        <PlusIcon className="h-4 w-4 sm:h-6 sm:w-6 text-purple-500" />
-                      </div>
-                      <span className="font-medium text-xs sm:text-sm md:text-base text-gray-800 text-center">
-                        Set Budget
-                      </span>
-                    </button>
+                          onClick={() => setAddMonthlyBudgetModalOpen(true)}
+                        >
+                          <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:shadow group-hover:scale-105 transition-all duration-300">
+                            <PlusIcon className="h-6 w-6 text-purple-500" />
+                          </div>
+                          <span className="font-medium text-gray-800">
+                            Set Budget
+                          </span>
+                        </button>
 
-                    <button
-                      className="bg-gradient-to-br cursor-pointer from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 
-                      transition-all duration-300 p-2 sm:p-4 rounded-lg flex flex-col items-center justify-center gap-2 sm:gap-3 
+                        <button
+                          className="bg-gradient-to-br cursor-pointer from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 
+                      transition-all duration-300 p-4 rounded-lg flex flex-col items-center justify-center gap-3 
                       shadow-sm hover:shadow border border-gray-200 group"
-                      onClick={handleViewHistory}
-                    >
-                      <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:shadow group-hover:scale-105 transition-all duration-300">
-                        <ListIcon className="h-4 w-4 sm:h-6 sm:w-6 text-gray-500" />
+                          onClick={handleViewHistory}
+                        >
+                          <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:shadow group-hover:scale-105 transition-all duration-300">
+                            <ListIcon className="h-6 w-6 text-gray-500" />
+                          </div>
+                          <span className="font-medium text-gray-800">
+                            View History
+                          </span>
+                        </button>
                       </div>
-                      <span className="font-medium text-xs sm:text-sm md:text-base text-gray-800 text-center">
-                        View History
-                      </span>
-                    </button>
+                    </div>
+                  </div>
+
+                  <div className="col-span-1 ml-4 bg-white rounded-2xl shadow-md border border-gray-200 p-6 transition-all hover:shadow-lg">
+                    <div className="p-3 border-b border-gray-100">
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        Total Income to Date
+                      </h3>
+                    </div>
+
+                    <div className="flex h-full justify-center items-center">
+                      <p className="text-3xl font-extrabold text-green-600 items-center font-mono tracking-tight">
+                        {formatCurrency(totalIncomeAllTime)}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
