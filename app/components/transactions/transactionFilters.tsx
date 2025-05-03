@@ -11,7 +11,7 @@ export default function TransactionFilters({
   availableMonths,
 }: TransactionFiltersProps) {
   return (
-    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+    <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4 items-stretch sm:items-center">
       {/* Type Filter */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 w-full sm:w-auto">
         <label
@@ -20,7 +20,7 @@ export default function TransactionFilters({
         >
           Type
         </label>
-        <div className="relative w-full sm:w-auto">
+        <div className="relative w-full sm:w-auto min-w-0">
           <select
             id="type"
             value={type}
@@ -45,7 +45,7 @@ export default function TransactionFilters({
         >
           Category
         </label>
-        <div className="relative w-full sm:w-auto">
+        <div className="relative w-full sm:w-auto min-w-0">
           <select
             id="category"
             value={category}
@@ -73,12 +73,12 @@ export default function TransactionFilters({
         >
           Month
         </label>
-        <div className="relative w-full sm:w-auto">
+        <div className="relative w-full sm:w-auto min-w-0">
           <select
             id="month"
             value={month}
             onChange={(e) => setMonth(e.target.value)}
-            className="appearance-none h-10 border border-gray-300 rounded-lg ps-4 pe-7 py-1.5 text-sm sm:text-md text-black w-full sm:w-auto"
+            className="appearance-none h-10 border border-gray-300 rounded-lg ps-4 pe-7 py-1.5 text-sm sm:text-md text-black w-full"
           >
             <option value="All">All</option>
             {availableMonths.map((m) => (

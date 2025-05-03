@@ -17,6 +17,7 @@ export default function TransactionsPage() {
   const { user, isAuthenticated, isLoading } = useAppSelector(
     (state) => state.auth
   );
+
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [refreshFlag, setRefreshFlag] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,11 +53,7 @@ export default function TransactionsPage() {
       try {
         const incomeQuery = new URLSearchParams();
         incomeQuery.append("type", "Income");
-        const incomeRes = await api.get(
-          `/transactions/?${incomeQuery.toString()}`
-        );
-
-        console.log("Income Response:", incomeRes.data.transactions);
+        const incomeRes = await api.get(`/transactions/?${incomeQuery.toString()}`);
 
         const totalIncome = incomeRes.data.transactions.reduce(
           (sum: number, tx: any) => sum + Number(tx.amount),
@@ -64,26 +61,20 @@ export default function TransactionsPage() {
         );
         setTotalIncomeAllTime(totalIncome);
 
-        // Fetching total expenses (without applying filters)
         const expenseQuery = new URLSearchParams();
-        expenseQuery.append("type", "Expense"); // Only fetch expenses
-        const expenseRes = await api.get(
-          `/transactions/?${expenseQuery.toString()}`
-        );
+        expenseQuery.append("type", "Expense");
+        const expenseRes = await api.get(`/transactions/?${expenseQuery.toString()}`);
 
-        // Calculate total expenses
         const totalExpenses = expenseRes.data.transactions.reduce(
           (sum: number, tx: any) => sum + Number(tx.amount),
           0
         );
-        console.log("Expense Response:", expenseRes.data);
         setTotalExpensesAllTime(totalExpenses);
       } catch (err) {
         console.error("Error fetching income or expenses:", err);
       }
     };
 
-    // Fetch total income and expenses when not loading and authenticated
     if (!isLoading && isAuthenticated) {
       fetchTotalIncomeAndExpenses();
     }
@@ -97,10 +88,7 @@ export default function TransactionsPage() {
           now.getMonth() + 1
         ).padStart(2, "0")}`;
 
-        const response = await api.get(
-          `/transactions/budgets/?month=${currentMonthYear}-01`
-        );
-
+        const response = await api.get(`/transactions/budgets/?month=${currentMonthYear}-01`);
         setCurrentBudget(response.data.amount);
       } catch (error) {
         console.error("Failed to fetch budget:", error);
@@ -138,7 +126,6 @@ export default function TransactionsPage() {
         if (month !== "All") query.append("month", month);
 
         const response = await api.get(`/transactions/?${query.toString()}`);
-
         const { transactions, available_months } = response.data;
         setTransactions(transactions);
         setAvailableMonths(available_months || []);
@@ -152,7 +139,6 @@ export default function TransactionsPage() {
   }, [refreshFlag, type, category, month]);
 
   const handleCreated = () => {
-    console.log("Trigger refresh");
     setRefreshFlag((prev) => !prev);
   };
 
@@ -175,7 +161,6 @@ export default function TransactionsPage() {
         const response = await api.delete(`/transactions/delete/${id}/`);
 
         if (response.status !== 200) {
-          console.error(`Failed to delete transaction with ID ${id}`);
           toast.error(`Failed to delete transaction with ID ${id}`);
         }
       }
@@ -195,7 +180,7 @@ export default function TransactionsPage() {
     try {
       const formatted = transactions.map((tx) => ({
         ...tx,
-        date: new Date(tx.date).toISOString().split("T")[0], // formats to YYYY-MM-DD
+        date: new Date(tx.date).toISOString().split("T")[0],
       }));
 
       const csv = json2csv(formatted);
@@ -218,21 +203,20 @@ export default function TransactionsPage() {
     if (month === "All") return "Set Budget";
 
     const [year, monthNum] = month.split("-");
-    const date = new Date(Number(year), Number(monthNum) - 1); // JS months are 0-based
+    const date = new Date(Number(year), Number(monthNum) - 1);
     return date.toLocaleString("default", { month: "long", year: "numeric" });
   };
 
   return (
-    <div className="p-2 sm:p-4 bg-white rounded-lg shadow-sm">
-      {/* Month display header */}
+    <div className="p-2 sm:p-4 bg-white rounded-lg shadow-sm overflow-x-hidden">
       <div className="mb-4 sm:mb-6 pl-2 text-left">
         <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-[#85193C]">
           {getMonthDisplayText()}
         </h2>
       </div>
 
-      <div className="flex flex-col sm:flex-row justify-between gap-3 mb-4 items-start sm:items-center">
-        <div className="w-full sm:max-w-[70%]">
+      <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-6 mb-4">
+        <div className="w-full sm:w-[65%]">
           <TransactionFilters
             type={type}
             setType={setType}
@@ -244,7 +228,7 @@ export default function TransactionsPage() {
           />
         </div>
 
-        <div className="flex  gap-2 w-full sm:w-auto  justify-end mt-3 sm:mt-0">
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-end mt-3 sm:mt-0">
           <span
             className="bg-[#614d7c] text-white px-3 py-2 text-sm sm:text-base rounded-lg hover:bg-[#4d3d62] transition duration-300 cursor-pointer flex gap-x-2 items-center whitespace-nowrap"
             onClick={handleBudgetClick}
@@ -253,16 +237,16 @@ export default function TransactionsPage() {
             {displayMonthName(month)}
             {month === "All" ? "" : `: ₱${currentBudget}`}
           </span>
-          <div className="flex gap-2">
-            <NewTransactionButton onCreated={handleCreated} />
-            <button
-              onClick={handleDelete}
-              className="p-2 bg-white border border-[#85193C] rounded-md hover:bg-[#ba7c91] disabled:opacity-50 flex items-center justify-center cursor-pointer"
-              aria-label="Delete selected transactions"
-            >
-              <Trash2 className="h-5 w-5 text-[#85193C]" />
-            </button>
-          </div>
+
+          <NewTransactionButton onCreated={handleCreated} />
+
+          <button
+            onClick={handleDelete}
+            className="p-2 bg-white border border-[#85193C] rounded-md hover:bg-[#ba7c91] disabled:opacity-50 flex items-center justify-center cursor-pointer"
+            aria-label="Delete selected transactions"
+          >
+            <Trash2 className="h-5 w-5 text-[#85193C]" />
+          </button>
 
           <AddMonthlyBudgetModal
             isOpen={isBudgetModalOpen}
@@ -286,10 +270,10 @@ export default function TransactionsPage() {
         />
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex justify-end mt-4">
         <button
           onClick={exportToCsv}
-          className=" bg-white border border-[#85193C] text-[#85193C] px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg hover:bg-[#ba7c91] transition duration-300 cursor-pointer flex gap-x-2 items-center text-sm sm:text-base"
+          className="bg-white border border-[#85193C] text-[#85193C] px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg hover:bg-[#ba7c91] transition duration-300 cursor-pointer flex gap-x-2 items-center text-sm sm:text-base"
         >
           <Download className="w-4 h-4 sm:w-5 sm:h-5" />
           Export
