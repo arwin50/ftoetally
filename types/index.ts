@@ -79,5 +79,5 @@ export interface AddMonthlyBudgetModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
-  remainingBalance?: number;
+  remainingBalance: number;
 }
