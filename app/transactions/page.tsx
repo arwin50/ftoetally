@@ -53,7 +53,9 @@ export default function TransactionsPage() {
       try {
         const incomeQuery = new URLSearchParams();
         incomeQuery.append("type", "Income");
-        const incomeRes = await api.get(`/transactions/?${incomeQuery.toString()}`);
+        const incomeRes = await api.get(
+          `/transactions/?${incomeQuery.toString()}`
+        );
 
         const totalIncome = incomeRes.data.transactions.reduce(
           (sum: number, tx: any) => sum + Number(tx.amount),
@@ -63,7 +65,9 @@ export default function TransactionsPage() {
 
         const expenseQuery = new URLSearchParams();
         expenseQuery.append("type", "Expense");
-        const expenseRes = await api.get(`/transactions/?${expenseQuery.toString()}`);
+        const expenseRes = await api.get(
+          `/transactions/?${expenseQuery.toString()}`
+        );
 
         const totalExpenses = expenseRes.data.transactions.reduce(
           (sum: number, tx: any) => sum + Number(tx.amount),
@@ -88,7 +92,9 @@ export default function TransactionsPage() {
           now.getMonth() + 1
         ).padStart(2, "0")}`;
 
-        const response = await api.get(`/transactions/budgets/?month=${currentMonthYear}-01`);
+        const response = await api.get(
+          `/transactions/budgets/?month=${currentMonthYear}-01`
+        );
         setCurrentBudget(response.data.amount);
       } catch (error) {
         console.error("Failed to fetch budget:", error);
@@ -208,15 +214,17 @@ export default function TransactionsPage() {
   };
 
   return (
-    <div className="p-2 sm:p-4 bg-white rounded-lg shadow-sm overflow-x-hidden">
+    <div className="p-2 sm:p-4 md:p-6 bg-white rounded-lg shadow-sm overflow-hidden">
       <div className="mb-4 sm:mb-6 pl-2 text-left">
         <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-[#85193C]">
           {getMonthDisplayText()}
         </h2>
       </div>
 
-      <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-6 mb-4">
-        <div className="w-full sm:w-[65%]">
+      {/* Main controls section */}
+      <div className="flex flex-col lg:flex-row justify-between gap-4 mb-4">
+        {/* Filters section - takes full width on mobile, 65% on larger screens */}
+        <div className="w-full lg:w-2/3">
           <TransactionFilters
             type={type}
             setType={setType}
@@ -228,7 +236,8 @@ export default function TransactionsPage() {
           />
         </div>
 
-        <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-end mt-3 sm:mt-0">
+        {/* Action buttons - stack on mobile, row on larger screens */}
+        <div className="flex flex-wrap gap-2 w-full lg:w-auto justify-end lg:justify-end mt-3 lg:mt-0 ">
           <span
             className="bg-[#614d7c] text-white px-3 py-2 text-sm sm:text-base rounded-lg hover:bg-[#4d3d62] transition duration-300 cursor-pointer flex gap-x-2 items-center whitespace-nowrap"
             onClick={handleBudgetClick}
@@ -244,6 +253,7 @@ export default function TransactionsPage() {
             onClick={handleDelete}
             className="p-2 bg-white border border-[#85193C] rounded-md hover:bg-[#ba7c91] disabled:opacity-50 flex items-center justify-center cursor-pointer"
             aria-label="Delete selected transactions"
+            disabled={selectedIds.length === 0}
           >
             <Trash2 className="h-5 w-5 text-[#85193C]" />
           </button>
@@ -260,7 +270,8 @@ export default function TransactionsPage() {
         </div>
       </div>
 
-      <div className="mt-4 overflow-x-auto">
+      {/* Table section with horizontal scroll for small screens */}
+      <div className="mt-4 overflow-x-auto rounded-lg border border-gray-200">
         <TransactionTable
           selectedIds={selectedIds}
           setSelectedIds={setSelectedIds}
@@ -270,13 +281,15 @@ export default function TransactionsPage() {
         />
       </div>
 
+      {/* Export button - always aligned to the right */}
       <div className="flex justify-end mt-4">
         <button
           onClick={exportToCsv}
-          className="bg-white border border-[#85193C] text-[#85193C] px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg hover:bg-[#ba7c91] transition duration-300 cursor-pointer flex gap-x-2 items-center text-sm sm:text-base"
+          disabled={transactions.length === 0}
+          className="bg-white border border-[#85193C] text-[#85193C] px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg hover:bg-[#ba7c91] transition duration-300 cursor-pointer flex gap-x-2 items-center text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Download className="w-4 h-4 sm:w-5 sm:h-5" />
-          Export
+          <span className=" xs:inline">Export</span>
         </button>
       </div>
 
