@@ -75,6 +75,7 @@ export default function TransactionsPage() {
 
   const handleUpdateBudget = async (newBudget: number) => {
     try {
+      console.log("clicked");
       const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) {
         alert("You need to be logged in.");

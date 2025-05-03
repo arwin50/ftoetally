@@ -73,12 +73,12 @@ export function Sidebar({
           <button
             onClick={() => {
               if (pathname === "/dashboard") {
-                router.replace(pathname); // Force reload
+                router.replace(pathname);
               } else {
                 router.push("/dashboard");
               }
             }}
-            className={`flex items-center ${
+            className={`flex items-center cursor-pointer ${
               minimized && !isMobile ? "justify-center" : ""
             } ${
               minimized && !isMobile ? "w-[90%] mx-auto" : "w-[90%] ml-3"
@@ -104,7 +104,7 @@ export function Sidebar({
                 router.push("/transactions");
               }
             }}
-            className={`flex items-center ${
+            className={`flex items-center cursor-pointer ${
               minimized && !isMobile ? "justify-center" : ""
             } ${
               minimized && !isMobile ? "w-[90%] mx-auto" : "w-[90%] ml-3"

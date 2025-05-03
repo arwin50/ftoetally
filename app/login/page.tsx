@@ -4,6 +4,7 @@ import type React from "react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import LoadingScreen from "../components/loadingScreen";
 
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import { login, clearError } from "@/lib/redux/slices/authSlice";
@@ -34,6 +35,9 @@ export default function LoginPage() {
     await dispatch(login({ email, password })).unwrap();
     router.push("/dashboard");
   };
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-[#85193C] p-4">

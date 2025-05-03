@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAppSelector} from "@/lib/redux/hooks";
+import { useAppSelector } from "@/lib/redux/hooks";
 import { ProtectedRoute } from "../protected";
 import PageLayout from "../components/pageLayout";
 import { Transaction } from "@/types";
 import { api } from "@/lib/redux/services/auth-service";
 import { Pie, Bar } from "react-chartjs-2";
-import { ConfirmationModal } from "../components/transactions/confimModal";
 import {
   Chart as ChartJS,
   ArcElement,
@@ -17,7 +16,6 @@ import {
   LinearScale,
   BarElement,
 } from "chart.js";
-import LoadingScreen from "../components/loadingScreen";
 import NewTransactionModal from "../components/transactions/newTransactionModal";
 import AddMonthlyBudgetModal from "../components/addMonthlyBudgetModal";
 import { PlusIcon, ListIcon } from "lucide-react";
@@ -37,6 +35,10 @@ export default function DashboardPage() {
     (state) => state.auth
   );
   const router = useRouter();
+  const now = new Date();
+  const currentMonthYear = `${now.getFullYear()}-${String(
+    now.getMonth() + 1
+  ).padStart(2, "0")}`;
 
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [totalIncome, setTotalIncome] = useState(0);
@@ -45,6 +47,8 @@ export default function DashboardPage() {
   const [addIncomeModalOpen, setAddIncomeModalOpen] = useState(false);
   const [addMonthlyBudgetModalOpen, setAddMonthlyBudgetModalOpen] =
     useState(false);
+  const [selectedMonthYear, setSelectedMonthYear] = useState(currentMonthYear);
+  const [availableMonths, setAvailableMonths] = useState<string[]>([]);
 
   const balance = totalIncome - totalExpenses;
 
@@ -93,43 +97,58 @@ export default function DashboardPage() {
   }, [isAuthenticated, isLoading, router]);
 
   useEffect(() => {
-    const fetchTransactions = async () => {
+    const fetchBudgetAndExpenses = async () => {
       try {
-        let totalIncome = 0;
-        let totalExpense = 0;
-
         const accessToken = localStorage.getItem("accessToken");
-        const response = await api.get("/transactions/", {
+        if (!accessToken) {
+          alert("You need to be logged in.");
+          return;
+        }
+
+        const budgetRes = await api.get("/transactions/budgets/", {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         });
 
-        const fetched = response.data;
-        setTransactions(fetched);
-        console.log("Fetched Transactions:", fetched);
+        const monthlyBudget = Number(budgetRes.data.amount);
+        setTotalIncome(monthlyBudget);
 
+        // 2. Fetch expenses
+        const query = new URLSearchParams();
+        query.append("type", "Expense");
+
+        // Dynamically add selected month-year if not 'Current'
+        if (selectedMonthYear !== "All") {
+          query.append("month", selectedMonthYear);
+        } else {
+          query.append("month", "All");
+        }
+
+        const expenseRes = await api.get(`/transactions/?${query.toString()}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        const expenses = expenseRes.data;
+        console.log("Expenses:", expenses);
+        setTransactions(expenses);
+
+        let totalExpense = 0;
         const categoryTotals: { [key: string]: number } = {};
 
-        fetched.forEach((tx: Transaction) => {
+        expenses.forEach((tx: Transaction) => {
           const amt = Number(tx.amount);
-
-          if (tx.type === "Expense") {
-            totalExpense += amt;
-            categoryTotals[tx.category] =
-              (categoryTotals[tx.category] || 0) + amt;
-          }
-
-          if (tx.type === "Income") {
-            totalIncome += amt;
-          }
+          totalExpense += amt;
+          categoryTotals[tx.category] =
+            (categoryTotals[tx.category] || 0) + amt;
         });
 
         const labels = Object.keys(categoryTotals);
         const data = Object.values(categoryTotals);
 
         setTotalExpenses(totalExpense);
-        setTotalIncome(totalIncome);
 
         setPieData((prev: any) => ({
           ...prev,
@@ -143,28 +162,46 @@ export default function DashboardPage() {
         }));
 
         setBarData({
-          labels: ["Income", "Expenses"],
+          labels: ["Budget", "Expenses"],
           datasets: [
             {
               label: "Amount",
-              data: [totalIncome, totalExpense],
+              data: [monthlyBudget, totalExpense],
               backgroundColor: ["#14B8A6", "#F87171"],
             },
           ],
         });
-      } catch {
+      } catch (error) {
+        console.error("Error fetching budget or expenses:", error);
         alert("Something went wrong. Please try again later.");
       }
     };
 
     if (!isLoading && isAuthenticated) {
-      fetchTransactions();
+      fetchBudgetAndExpenses();
+    }
+  }, [isLoading, isAuthenticated, selectedMonthYear]);
+
+  useEffect(() => {
+    const fetchAvailableMonths = async () => {
+      try {
+        const accessToken = localStorage.getItem("accessToken");
+        if (!accessToken) return;
+
+        const res = await api.get("/transactions/budgets/all/", {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        setAvailableMonths(res.data);
+      } catch (error) {
+        console.error("Failed to fetch available months:", error);
+      }
+    };
+
+    if (!isLoading && isAuthenticated) {
+      fetchAvailableMonths();
     }
   }, [isLoading, isAuthenticated]);
-
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
 
   const barOptions = {
     scales: {
@@ -208,8 +245,22 @@ export default function DashboardPage() {
                 <h2 className="text-3xl font-bold text-gray-800">
                   Monthly Overview
                 </h2>
-                <div className="text-sm font-medium text-gray-500 bg-white px-3 py-1 rounded-full shadow-sm border">
-                  May 2025
+                <div className="flex justify-end ">
+                  <select
+                    value={selectedMonthYear}
+                    onChange={(e) => setSelectedMonthYear(e.target.value)}
+                    className="border border-gray-300 rounded px-3 py-2 text-sm"
+                  >
+                    <option value="All">All</option>
+                    {availableMonths.map((month) => (
+                      <option key={month} value={month}>
+                        {new Date(`${month}-01`).toLocaleString("default", {
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
@@ -250,7 +301,15 @@ export default function DashboardPage() {
                       Balance Summary
                     </h3>
                     <span className="text-sm font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                      This month
+                      {selectedMonthYear === currentMonthYear
+                        ? "This month"
+                        : new Date(selectedMonthYear + "-01").toLocaleString(
+                            "default",
+                            {
+                              month: "long",
+                              year: "numeric",
+                            }
+                          )}
                     </span>
                   </div>
                   <div className="p-3 space-y-5">
@@ -440,7 +499,6 @@ export default function DashboardPage() {
             onSuccess={() => setAddMonthlyBudgetModalOpen(false)}
           />
         )}
-       
       </PageLayout>
     </ProtectedRoute>
   );
