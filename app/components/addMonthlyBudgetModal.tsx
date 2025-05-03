@@ -58,7 +58,7 @@ export default function AddMonthlyBudgetModal({
     e.preventDefault();
 
     if (Number(budgetData.amount) > remainingBalance) {
-      toast.error("Budget exceeds your current balance.");
+      toast.error("Budget exceeds your current balance! Please add an income.");
       return;
     }
 

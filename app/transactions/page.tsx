@@ -211,7 +211,7 @@ export default function TransactionsPage() {
   };
 
   const displayMonthName = (month: string) => {
-    if (month === "All") return "All time";
+    if (month === "All") return "Set Budget";
 
     const [year, monthNum] = month.split("-");
     const date = new Date(Number(year), Number(monthNum) - 1); // JS months are 0-based
@@ -246,8 +246,8 @@ export default function TransactionsPage() {
             onClick={handleBudgetClick}
             title="Click to edit budget"
           >
-            {displayMonthName(month)}:{" "}
-            {month === "All" ? "₱..." : `₱${currentBudget}`}
+            {displayMonthName(month)}
+            {month === "All" ? "" : `: ₱${currentBudget}`}
           </span>
           <div className="flex gap-2">
             <NewTransactionButton onCreated={handleCreated} />
