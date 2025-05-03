@@ -21,12 +21,24 @@ export default function AddMonthlyBudgetModal({
     const fetchBudget = async () => {
       try {
         const accessToken = localStorage.getItem("accessToken");
-        const response = await api.get("/transactions/budgets/", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-        console.log("Fetched Budget Response:", response);
+
+        if (!accessToken) return;
+
+        const now = new Date();
+        const currentMonthYear = `${now.getFullYear()}-${String(
+          now.getMonth() + 1
+        ).padStart(2, "0")}`;
+
+        const response = await api.get(
+          `/transactions/budgets/?month=${currentMonthYear}-01`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+        console.log("Fetched Budget Response:", response.data.month);
+
         if (response.status === 200) {
           setBudgetData({
             amount: response.data.amount,
@@ -93,7 +105,7 @@ export default function AddMonthlyBudgetModal({
           </h2>
           <button
             onClick={onClose}
-            className="text-white bg-[#85193C] hover:bg-[#ba7c91] rounded-md"
+            className="text-white bg-[#85193C] hover:bg-[#ba7c91] rounded-md cursor-pointer"
             aria-label="Close modal"
           >
             <X className="h-6 w-6" />
@@ -132,7 +144,7 @@ export default function AddMonthlyBudgetModal({
               type="month"
               id="month"
               name="month"
-              value={budgetData.month}
+              value={budgetData.month.slice(0, 7)}
               onChange={handleChange}
               className="h-9 border border-gray-300 rounded px-3 py-2 text-black text-sm"
               required
@@ -142,7 +154,7 @@ export default function AddMonthlyBudgetModal({
           <div className="flex justify-center mt-6">
             <button
               type="submit"
-              className="px-4 py-2 bg-[#4A102A] text-white rounded-md hover:bg-[#35091D] text-sm"
+              className="px-4 py-2 bg-[#4A102A] text-white rounded-md hover:bg-[#35091D] text-sm cursor-pointer"
             >
               {isEditing ? "Update Budget" : "Save Budget"}
             </button>
