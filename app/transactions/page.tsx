@@ -231,13 +231,6 @@ export default function TransactionsPage() {
           >
             Monthly Budget: ₱{currentBudget ?? "..."}
           </span>
-          <button
-            onClick={exportToCsv}
-            className="bg-[#85193C] text-white px-4 py-2 rounded-lg hover:bg-[#6e142f] transition duration-300 cursor-pointer flex gap-x-2 items-center "
-          >
-            <Download className="w-5 h-5" />
-            Export
-          </button>
           <NewTransactionButton onCreated={handleCreated} />
           <button
             onClick={handleDelete}
@@ -265,6 +258,15 @@ export default function TransactionsPage() {
           onTransactionUpdated={handleTransactionUpdate}
           transactions={transactions}
         />
+      </div>
+      <div className="pt-4">
+        <button
+          onClick={exportToCsv}
+          className="bg-white border border-[#85193C] text-[#85193C] px-4 py-2 rounded-lg hover:bg-[#ba7c91] transition duration-300 cursor-pointer flex gap-x-2 items-center "
+        >
+          <Download className="w-5 h-5" />
+          Export
+        </button>
       </div>
       <ConfirmationModal
         isOpen={isModalOpen}

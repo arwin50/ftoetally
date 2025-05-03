@@ -14,7 +14,7 @@ export default function NewTransactionButton({
     <>
       <button
         onClick={() => setIsModalOpen(true)}
-        className="flex h-10 items-center justify-center gap-1 px-2 sm:px-3 py-1.5 bg-[#85193C] border border-[#85193C] text-white rounded-lg hover:bg-[#ba7c91] transition-colors cursor-pointer"
+        className="flex h-10 items-center justify-center gap-1 px-2 sm:px-3 py-1.5 bg-[#85193C] border border-[#85193C] text-white rounded-lg hover:bg-[#6e142f] transition-colors cursor-pointer"
         aria-label="Add new transaction"
       >
         <Plus className="h-4 w-4" />
