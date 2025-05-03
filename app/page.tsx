@@ -44,7 +44,7 @@ export default function Home() {
             href="/login"
             className="flex items-center justify-center space-x-2 bg-[#4E112C] hover:bg-[#4A102A] text-yellow-300 py-2 sm:py-3 px-3 sm:px-4 rounded-md transition-colors"
           >
-            <LogIn size={24} className="sm:size-30" />
+            <LogIn size={24} />
             <span className="text-lg sm:text-xl font-medium">Log In</span>
           </Link>
 
@@ -52,7 +52,7 @@ export default function Home() {
             href="/register"
             className="flex items-center justify-center space-x-2 bg-[#4A102A] hover:bg-[#340A1D] text-yellow-300 py-2 sm:py-3 px-3 sm:px-4 rounded-md transition-colors"
           >
-            <PenSquare size={24} className="sm:size-30" />
+            <PenSquare size={24} />
             <span className="text-lg sm:text-xl font-medium">Register</span>
           </Link>
         </div>
