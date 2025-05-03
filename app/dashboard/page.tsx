@@ -180,7 +180,7 @@ export default function DashboardPage() {
   const formatCurrency = (amount: any) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "PHP",
       minimumFractionDigits: 2,
     }).format(amount);
   };

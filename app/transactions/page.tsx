@@ -225,7 +225,7 @@ export default function TransactionsPage() {
 
         <div className="flex gap-2 w-full sm:w-auto justify-end mt-3 sm:mt-0">
           <span
-            className="bg-[#85193C] text-white px-4 py-2 rounded-lg hover:bg-[#6e142f] transition duration-300 cursor-pointer flex gap-x-2 items-center "
+            className="bg-[#614d7c] text-white px-4 py-2 rounded-lg hover:bg-[#4d3d62] transition duration-300 cursor-pointer flex gap-x-2 items-center "
             onClick={handleBudgetClick}
             title="Click to edit budget"
           >
