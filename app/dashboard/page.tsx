@@ -553,6 +553,7 @@ export default function DashboardPage() {
             onClose={() => setAddMonthlyBudgetModalOpen(false)}
             onSuccess={() => {
               setAddMonthlyBudgetModalOpen(false);
+              fetchBudgetAndExpenses();
             }}
             remainingBalance={totalIncomeAllTime - totalExpensesAllTime}
           />
