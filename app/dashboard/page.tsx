@@ -52,6 +52,7 @@ export default function DashboardPage() {
   const [selectedMonthYear, setSelectedMonthYear] = useState(currentMonthYear);
   const [availableMonths, setAvailableMonths] = useState<string[]>([]);
   const [currentBudget, setCurrentBudget] = useState(0);
+  const [refreshFlag, setRefreshFlag] = useState(false);
 
   const balance = currentBudget - totalExpenses;
 
@@ -556,7 +557,9 @@ export default function DashboardPage() {
             onClose={() => setAddMonthlyBudgetModalOpen(false)}
             onSuccess={() => {
               setAddMonthlyBudgetModalOpen(false);
+              setRefreshFlag((prev) => !prev);
             }}
+            remainingBalance={totalIncomeAllTime - totalExpensesAllTime}
           />
         )}
       </PageLayout>
