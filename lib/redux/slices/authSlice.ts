@@ -70,7 +70,17 @@ export const register = createAsyncThunk<void, RegisterData>(
     try {
       await authService.register(userData);
     } catch (error: any) {
-      return rejectWithValue(error.message || "Registration failed");
+      const response = error.response?.data;
+
+      const message =
+        response?.email?.[0] ||
+        response?.password?.[0] ||
+        response?.password_confirmation?.[0] ||
+        response?.non_field_errors?.[0] ||
+        response?.detail ||
+        "Registration failed. Please try again.";
+
+      return rejectWithValue(message);
     }
   }
 );
