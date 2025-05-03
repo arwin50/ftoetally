@@ -16,7 +16,7 @@ export default function NewTransactionModal({
 }: NewTransactionModalProps) {
   const [formData, setFormData] = useState({
     type: defaultType,
-    category: "Food",
+    category: defaultType === "Income" ? "Other" : "Food",
     subject: "",
     amount: "",
     date: new Date().toISOString().split("T")[0],
@@ -31,12 +31,9 @@ export default function NewTransactionModal({
     const { name, value } = e.target;
 
     setFormData((prev) => {
-      // If the type changes to "Income", set category to "Other"
       if (name === "type" && value === "Income") {
         return { ...prev, type: value, category: "Other" };
       }
-
-      // Otherwise, just update the field normally
       return { ...prev, [name]: value };
     });
   };

@@ -197,17 +197,16 @@ export default function DashboardPage() {
     }
   }, [isLoading, isAuthenticated, selectedMonthYear]);
 
+  const fetchAvailableMonths = async () => {
+    try {
+      const res = await api.get("/transactions/budgets/all/");
+
+      setAvailableMonths(res.data);
+    } catch (error) {
+      console.error("Failed to fetch available months:", error);
+    }
+  };
   useEffect(() => {
-    const fetchAvailableMonths = async () => {
-      try {
-        const res = await api.get("/transactions/budgets/all/");
-
-        setAvailableMonths(res.data);
-      } catch (error) {
-        console.error("Failed to fetch available months:", error);
-      }
-    };
-
     if (!isLoading && isAuthenticated) {
       fetchAvailableMonths();
     }
@@ -600,6 +599,7 @@ export default function DashboardPage() {
               setAddExpenseModalOpen(false);
               fetchTotalIncomeAndExpenses();
               fetchBudgetAndExpenses();
+              fetchAvailableMonths();
             }}
             defaultType="Expense"
             allowedMonths={availableMonths}
@@ -623,6 +623,7 @@ export default function DashboardPage() {
             onSuccess={() => {
               setAddMonthlyBudgetModalOpen(false);
               fetchBudgetAndExpenses();
+              fetchAvailableMonths();
             }}
             remainingBalance={totalIncomeAllTime - totalExpensesAllTime}
           />
