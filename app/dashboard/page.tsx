@@ -508,7 +508,6 @@ export default function DashboardPage() {
             onClose={() => setAddMonthlyBudgetModalOpen(false)}
             onSuccess={() => {
               setAddMonthlyBudgetModalOpen(false);
-              fetchCurrentBudget();
             }}
           />
         )}
