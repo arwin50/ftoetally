@@ -43,17 +43,6 @@ export function AuthInitializer({ children }: { children: React.ReactNode }) {
     initAuth();
   }, [dispatch]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const refreshTokenT = localStorage.getItem("refreshToken");
-      if (refreshTokenT) {
-        dispatch(refreshToken()); // Avoid name conflict with the function
-      }
-    }, 13 * 60 * 1000);
-
-    return () => clearInterval(interval);
-  }, [dispatch]);
-
   return <>{children}</>;
 }
 

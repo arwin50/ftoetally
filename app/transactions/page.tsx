@@ -17,7 +17,7 @@ export default function TransactionsPage() {
   const [refreshFlag, setRefreshFlag] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [currentBudget, setCurrentBudget] = useState<number | null>(null);
+  const [currentBudget, setCurrentBudget] = useState(0);
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
 
   const [type, setType] = useState("All");
@@ -52,14 +52,9 @@ export default function TransactionsPage() {
           `/transactions/budgets/?month=${currentMonthYear}-01`
         );
 
-        if (response.data && response.data.amount) {
-          setCurrentBudget(response.data.amount);
-        } else {
-          setCurrentBudget(0);
-        }
+        setCurrentBudget(response.data.amount);
       } catch (error) {
         console.error("Failed to fetch budget:", error);
-        setCurrentBudget(0);
       }
     }
 

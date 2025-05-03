@@ -103,15 +103,12 @@ export default function DashboardPage() {
         const budgetRes = await api.get(
           `/transactions/budgets/?month=${selectedMonthYear}-01`
         );
-        console.log("Budget:", budgetRes.data);
+
         const monthlyBudget = Number(budgetRes.data.amount);
         setCurrentBudget(monthlyBudget);
 
-        // 2. Fetch expenses
         const query = new URLSearchParams();
         query.append("type", "Expense");
-
-        // Dynamically add selected month-year if not 'Current'
 
         query.append("month", selectedMonthYear);
 
