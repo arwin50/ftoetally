@@ -20,6 +20,7 @@ import NewTransactionModal from "../components/transactions/newTransactionModal"
 import AddMonthlyBudgetModal from "../components/addMonthlyBudgetModal";
 import { PlusIcon, ListIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 ChartJS.register(
   ArcElement,
@@ -41,6 +42,8 @@ export default function DashboardPage() {
   ).padStart(2, "0")}`;
 
   const [totalExpenses, setTotalExpenses] = useState(0);
+  const [totalIncomeAllTime, setTotalIncomeAllTime] = useState(0);
+  const [totalExpensesAllTime, setTotalExpensesAllTime] = useState<number>(0);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [addExpenseModalOpen, setAddExpenseModalOpen] = useState(false);
   const [addIncomeModalOpen, setAddIncomeModalOpen] = useState(false);
@@ -48,7 +51,6 @@ export default function DashboardPage() {
     useState(false);
   const [selectedMonthYear, setSelectedMonthYear] = useState(currentMonthYear);
   const [availableMonths, setAvailableMonths] = useState<string[]>([]);
-
   const [currentBudget, setCurrentBudget] = useState(0);
 
   const balance = currentBudget - totalExpenses;
@@ -97,33 +99,43 @@ export default function DashboardPage() {
     }
   }, [isAuthenticated, isLoading, router]);
 
-  const [totalIncomeAllTime, setTotalIncomeAllTime] = useState(0);
-
   useEffect(() => {
-    const fetchTotalIncome = async () => {
+    const fetchTotalIncomeAndExpenses = async () => {
       try {
-        const accessToken = localStorage.getItem("accessToken");
-        if (!accessToken) return;
+        // Fetching total income (without applying filters)
+        const incomeQuery = new URLSearchParams();
+        incomeQuery.append("type", "Income"); // Only fetch income
+        const incomeRes = await api.get(
+          `/transactions/?${incomeQuery.toString()}`
+        );
 
-        const query = new URLSearchParams();
-        query.append("type", "Income");
-
-        const res = await api.get(`/transactions/?${query.toString()}`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-
-        const total = res.data.reduce(
-          (sum: number, tx: Transaction) => sum + Number(tx.amount),
+        // Calculate total income
+        const totalIncome = incomeRes.data.transactions.reduce(
+          (sum: number, tx: any) => sum + Number(tx.amount),
           0
         );
-        setTotalIncomeAllTime(total);
+        setTotalIncomeAllTime(totalIncome);
+
+        // Fetching total expenses (without applying filters)
+        const expenseQuery = new URLSearchParams();
+        expenseQuery.append("type", "Expense");
+        const expenseRes = await api.get(
+          `/transactions/?${expenseQuery.toString()}`
+        );
+
+        const totalExpenses = expenseRes.data.transactions.reduce(
+          (sum: number, tx: any) => sum + Number(tx.amount),
+          0
+        );
+        console.log("Expense Response:", expenseRes.data);
+        setTotalExpensesAllTime(totalExpenses);
       } catch (err) {
-        console.error("Error fetching total income:", err);
+        console.error("Error fetching income or expenses:", err);
       }
     };
 
     if (!isLoading && isAuthenticated) {
-      fetchTotalIncome();
+      fetchTotalIncomeAndExpenses();
     }
   }, [isLoading, isAuthenticated]);
 
@@ -144,7 +156,7 @@ export default function DashboardPage() {
 
         const expenseRes = await api.get(`/transactions/?${query.toString()}`);
 
-        const expenses = expenseRes.data;
+        const expenses = expenseRes.data.transactions;
         console.log("Expenses:", expenses);
         setTransactions(expenses);
 
@@ -186,7 +198,7 @@ export default function DashboardPage() {
         });
       } catch (error) {
         console.error("Error fetching budget or expenses:", error);
-        alert("Something went wrong. Please try again later.");
+        toast.error("Something went wrong. Please try again later.");
       }
     };
 
@@ -248,10 +260,10 @@ export default function DashboardPage() {
               </h1>
             </div>
 
-            <div className=" p-3 max-w-7xl mx-auto">
+            <div className="p-3 max-w-7xl mx-auto">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
                 <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
-                  Monthly Overview
+                  Overview
                 </h2>
                 <div className="flex justify-start sm:justify-end">
                   <select
@@ -273,15 +285,15 @@ export default function DashboardPage() {
 
               <div>
                 {/* Dashboard Cards */}
-                <div className="flex gap-6 mb-4">
+                <div className="flex flex-col lg:flex-row gap-4 mb-4">
                   {/* Categorical Expenses */}
-                  <div className="flex-1 bg-white rounded-2xl shadow-md border border-gray-200 p-6 transition-all hover:shadow-lg">
-                    <div className="p-3 border-b border-gray-100">
-                      <h3 className="text-lg font-semibold text-gray-800">
+                  <div className="w-full lg:w-1/3 bg-white rounded-2xl shadow-md border border-gray-200 p-4 sm:p-6 transition-all hover:shadow-lg">
+                    <div className="p-2 sm:p-3 border-b border-gray-100">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-800">
                         Expense Categories
                       </h3>
                     </div>
-                    <div className="p-3 relative">
+                    <div className="p-2 sm:p-3 relative">
                       <div className="aspect-square max-w-[200px] mx-auto relative">
                         <Pie data={pieData} />
                         {totalExpenses === 0 && (
@@ -294,26 +306,26 @@ export default function DashboardPage() {
                   </div>
 
                   {/* Budget vs Expenses */}
-                  <div className="flex-1 bg-white rounded-2xl shadow-md border border-gray-200 p-6 transition-all hover:shadow-lg">
-                    <div className="p-3 border-b border-gray-100">
-                      <h3 className="text-lg font-semibold text-gray-800">
+                  <div className="w-full lg:w-1/3 bg-white rounded-2xl shadow-md border border-gray-200 p-4 sm:p-6 transition-all hover:shadow-lg">
+                    <div className="p-2 sm:p-3 border-b border-gray-100">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-800">
                         Budget vs Expenses
                       </h3>
                     </div>
-                    <div className="p-3">
+                    <div className="p-2 sm:p-3">
                       <div className="aspect-square max-w-[200px] mx-auto relative">
                         <Bar data={barData} options={barOptions} />
                       </div>
                     </div>
                   </div>
 
-                  {/* Balance Summary */}
-                  <div className="flex-1 bg-white rounded-2xl shadow-md border border-gray-200 p-6 transition-all hover:shadow-lg">
-                    <div className="p-3 border-b border-gray-100 flex justify-between items-center">
-                      <h3 className="text-lg font-semibold text-gray-800">
-                        Balance Summary
+                  {/* Budget Summary */}
+                  <div className="w-full lg:w-1/3 bg-white rounded-2xl shadow-md border border-gray-200 p-4 sm:p-6 transition-all hover:shadow-lg">
+                    <div className="p-2 sm:p-3 border-b border-gray-100 flex flex-wrap justify-between items-center gap-2">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-800">
+                        Budget Summary
                       </h3>
-                      <span className="text-sm font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                      <span className="text-xs sm:text-sm font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                         {selectedMonthYear === currentMonthYear
                           ? "This month"
                           : new Date(selectedMonthYear + "-01").toLocaleString(
@@ -325,27 +337,31 @@ export default function DashboardPage() {
                             )}
                       </span>
                     </div>
-                    <div className="p-3 space-y-5">
+                    <div className="p-2 sm:p-3 space-y-3 sm:space-y-5">
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Budget:</span>
-                        <span className="font-mono font-medium text-gray-800">
+                        <span className="text-sm sm:text-base text-gray-600">
+                          Budget:
+                        </span>
+                        <span className="font-mono font-medium text-sm sm:text-base text-gray-800">
                           {formatCurrency(currentBudget)}
                         </span>
                       </div>
 
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Total Expense:</span>
-                        <span className="font-mono font-medium text-red-600">
+                        <span className="text-sm sm:text-base text-gray-600">
+                          Total Expense:
+                        </span>
+                        <span className="font-mono font-medium text-sm sm:text-base text-red-600">
                           - {formatCurrency(totalExpenses)}
                         </span>
                       </div>
 
-                      <div className="border-t pt-5 flex justify-between items-center">
-                        <span className="font-semibold text-gray-800">
-                          Remaining Balance:
+                      <div className="border-t pt-3 sm:pt-5 flex justify-between items-center">
+                        <span className="font-semibold text-sm sm:text-base text-gray-800">
+                          Remaining Budget:
                         </span>
                         <span
-                          className={`font-mono font-bold text-lg ${getBalanceColor(
+                          className={`font-mono font-bold text-base sm:text-lg ${getBalanceColor(
                             balance
                           )}`}
                         >
@@ -355,9 +371,9 @@ export default function DashboardPage() {
 
                       <div className="pt-2">
                         {totalExpenses > currentBudget && (
-                          <div className="flex items-center text-red-600 bg-red-50 p-3 rounded-lg">
+                          <div className="flex items-center text-red-600 bg-red-50 p-2 sm:p-3 rounded-lg">
                             <svg
-                              className="h-5 w-5 mr-2"
+                              className="h-4 w-4 sm:h-5 sm:w-5 mr-2"
                               fill="none"
                               viewBox="0 0 24 24"
                               stroke="currentColor"
@@ -369,16 +385,16 @@ export default function DashboardPage() {
                                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
                               />
                             </svg>
-                            <p className="text-sm font-medium">
+                            <p className="text-xs sm:text-sm font-medium">
                               Warning: You've exceeded your budget!
                             </p>
                           </div>
                         )}
 
                         {totalExpenses === currentBudget && (
-                          <div className="flex items-center text-yellow-600 bg-yellow-50 p-3 rounded-lg">
+                          <div className="flex items-center text-yellow-600 bg-yellow-50 p-2 sm:p-3 rounded-lg">
                             <svg
-                              className="h-5 w-5 mr-2"
+                              className="h-4 w-4 sm:h-5 sm:w-5 mr-2"
                               fill="none"
                               viewBox="0 0 24 24"
                               stroke="currentColor"
@@ -390,16 +406,16 @@ export default function DashboardPage() {
                                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                               />
                             </svg>
-                            <p className="text-sm font-medium">
+                            <p className="text-xs sm:text-sm font-medium">
                               Heads up: You've hit your monthly budget!
                             </p>
                           </div>
                         )}
 
                         {totalExpenses < currentBudget && (
-                          <div className="flex items-center text-green-600 bg-green-50 p-3 rounded-lg">
+                          <div className="flex items-center text-green-600 bg-green-50 p-2 sm:p-3 rounded-lg">
                             <svg
-                              className="h-5 w-5 mr-2"
+                              className="h-4 w-4 sm:h-5 sm:w-5 mr-2"
                               fill="none"
                               viewBox="0 0 24 24"
                               stroke="currentColor"
@@ -411,7 +427,7 @@ export default function DashboardPage() {
                                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                               />
                             </svg>
-                            <p className="text-sm font-medium">
+                            <p className="text-xs sm:text-sm font-medium">
                               Great! You're under your monthly budget!
                             </p>
                           </div>
@@ -421,68 +437,68 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                   {/* Quick Access */}
-                  <div className="col-span-2 mr-2 bg-white rounded-2xl shadow-md border border-gray-200 p-6 transition-all hover:shadow-lg">
-                    <div className="p-3 border-b border-gray-100">
-                      <h3 className="text-lg font-semibold text-gray-800">
+                  <div className="lg:col-span-2 bg-white rounded-2xl shadow-md border border-gray-200 p-4 sm:p-6 transition-all hover:shadow-lg">
+                    <div className="p-2 sm:p-3 border-b border-gray-100">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-800">
                         Quick Actions
                       </h3>
                     </div>
-                    <div className="p-5">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="p-3 sm:p-5">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                         <button
                           className="bg-gradient-to-br cursor-pointer from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 
-                      transition-all duration-300 p-4 rounded-lg flex flex-col items-center justify-center gap-3 
-                      shadow-sm hover:shadow border border-red-200 group"
+                          transition-all duration-300 p-3 sm:p-4 rounded-lg flex flex-col items-center justify-center gap-2 sm:gap-3 
+                          shadow-sm hover:shadow border border-red-200 group"
                           onClick={() => setAddExpenseModalOpen(true)}
                         >
-                          <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:shadow group-hover:scale-105 transition-all duration-300">
-                            <PlusIcon className="h-6 w-6 text-red-500" />
+                          <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:shadow group-hover:scale-105 transition-all duration-300">
+                            <PlusIcon className="h-4 w-4 sm:h-6 sm:w-6 text-red-500" />
                           </div>
-                          <span className="font-medium text-gray-800">
+                          <span className="text-xs sm:text-sm font-medium text-gray-800 text-center">
                             Add Expense
                           </span>
                         </button>
 
                         <button
                           className="bg-gradient-to-b cursor-pointer from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 
-                      transition-all duration-300 p-4 rounded-lg flex flex-col items-center justify-center gap-3 
-                      shadow-sm hover:shadow border border-green-200 group"
+                          transition-all duration-300 p-3 sm:p-4 rounded-lg flex flex-col items-center justify-center gap-2 sm:gap-3 
+                          shadow-sm hover:shadow border border-green-200 group"
                           onClick={() => setAddIncomeModalOpen(true)}
                         >
-                          <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:shadow group-hover:scale-105 transition-all duration-300">
-                            <PlusIcon className="h-6 w-6 text-green-500" />
+                          <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:shadow group-hover:scale-105 transition-all duration-300">
+                            <PlusIcon className="h-4 w-4 sm:h-6 sm:w-6 text-green-500" />
                           </div>
-                          <span className="font-medium text-gray-800">
+                          <span className="text-xs sm:text-sm font-medium text-gray-800 text-center">
                             Add Income
                           </span>
                         </button>
 
                         <button
                           className="bg-gradient-to-br cursor-pointer from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 
-                      transition-all duration-300 p-4 rounded-lg flex flex-col items-center justify-center gap-3 
-                      shadow-sm hover:shadow border border-purple-200 group"
+                          transition-all duration-300 p-3 sm:p-4 rounded-lg flex flex-col items-center justify-center gap-2 sm:gap-3 
+                          shadow-sm hover:shadow border border-purple-200 group"
                           onClick={() => setAddMonthlyBudgetModalOpen(true)}
                         >
-                          <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:shadow group-hover:scale-105 transition-all duration-300">
-                            <PlusIcon className="h-6 w-6 text-purple-500" />
+                          <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:shadow group-hover:scale-105 transition-all duration-300">
+                            <PlusIcon className="h-4 w-4 sm:h-6 sm:w-6 text-purple-500" />
                           </div>
-                          <span className="font-medium text-gray-800">
+                          <span className="text-xs sm:text-sm font-medium text-gray-800 text-center">
                             Set Budget
                           </span>
                         </button>
 
                         <button
                           className="bg-gradient-to-br cursor-pointer from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 
-                      transition-all duration-300 p-4 rounded-lg flex flex-col items-center justify-center gap-3 
-                      shadow-sm hover:shadow border border-gray-200 group"
+                          transition-all duration-300 p-3 sm:p-4 rounded-lg flex flex-col items-center justify-center gap-2 sm:gap-3 
+                          shadow-sm hover:shadow border border-gray-200 group"
                           onClick={handleViewHistory}
                         >
-                          <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:shadow group-hover:scale-105 transition-all duration-300">
-                            <ListIcon className="h-6 w-6 text-gray-500" />
+                          <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:shadow group-hover:scale-105 transition-all duration-300">
+                            <ListIcon className="h-4 w-4 sm:h-6 sm:w-6 text-gray-500" />
                           </div>
-                          <span className="font-medium text-gray-800">
+                          <span className="text-xs sm:text-sm font-medium text-gray-800 text-center">
                             View History
                           </span>
                         </button>
@@ -490,16 +506,22 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  <div className="col-span-1 ml-4 bg-white rounded-2xl shadow-md border border-gray-200 p-6 transition-all hover:shadow-lg">
-                    <div className="p-3 border-b border-gray-100">
-                      <h3 className="text-lg font-semibold text-gray-800">
-                        Total Income to Date
+                  <div className="lg:col-span-1 bg-white rounded-2xl shadow-md border border-gray-200 p-4 sm:p-6 transition-all hover:shadow-lg">
+                    <div className="p-2 sm:p-3 border-b border-gray-100">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-800">
+                        Remaining Balance
                       </h3>
                     </div>
 
-                    <div className="flex h-full justify-center items-center">
-                      <p className="text-3xl font-extrabold text-green-600 items-center font-mono tracking-tight">
-                        {formatCurrency(totalIncomeAllTime)}
+                    <div className="flex h-[120px] sm:h-[150px] justify-center items-center">
+                      <p
+                        className={`text-xl sm:text-2xl md:text-3xl font-extrabold ${
+                          balance > 0 ? "text-green-600" : "text-red-600"
+                        } items-center font-mono tracking-tight`}
+                      >
+                        {formatCurrency(
+                          totalIncomeAllTime - totalExpensesAllTime
+                        )}
                       </p>
                     </div>
                   </div>
@@ -515,6 +537,7 @@ export default function DashboardPage() {
             onClose={() => setAddExpenseModalOpen(false)}
             onSuccess={() => setAddExpenseModalOpen(false)}
             defaultType="Expense"
+            allowedMonths={availableMonths}
           />
         )}
         {addIncomeModalOpen && (
@@ -522,6 +545,7 @@ export default function DashboardPage() {
             onClose={() => setAddIncomeModalOpen(false)}
             onSuccess={() => setAddIncomeModalOpen(false)}
             defaultType="Income"
+            allowedMonths={availableMonths}
           />
         )}
         {addMonthlyBudgetModalOpen && (

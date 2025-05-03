@@ -10,6 +10,7 @@ export default function AddMonthlyBudgetModal({
   isOpen,
   onClose,
   onSuccess,
+  remainingBalance,
 }: AddMonthlyBudgetModalProps) {
   const [budgetData, setBudgetData] = useState<MonthlyBudget>({
     amount: "",
@@ -56,9 +57,19 @@ export default function AddMonthlyBudgetModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (Number(budgetData.amount) > balance) {
+      toast.error("Budget exceeds your current balance.");
+      return;
+    }
+
+    if (Number(budgetData.amount) < 0) {
+      toast.error("Negative budget amount is not allowed.");
+      return;
+    }
+
     const updatedBudgetData = {
       ...budgetData,
-      month: `${budgetData.month}-01`,
+      month: `${budgetData.month}`,
     };
 
     try {
@@ -97,10 +108,18 @@ export default function AddMonthlyBudgetModal({
           </button>
         </div>
 
-        <hr className="border-t border-gray-300 mb-6" />
+        <hr className="border-t border-gray-300 mb-4" />
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex flex-col">
+            <div className="bg-gray-100 p-4 rounded-lg shadow-sm mb-4 border border-gray-200">
+              <p className="text-sm text-gray-700 font-semibold">
+                Remaining Balance:{" "}
+                <span className="text-[#4A102A] font-bold">
+                  ₱{remainingBalance}
+                </span>
+              </p>
+            </div>
             <label
               htmlFor="amount"
               className="text-sm font-medium text-black mb-1"
@@ -111,6 +130,7 @@ export default function AddMonthlyBudgetModal({
               type="number"
               id="amount"
               name="amount"
+              min={0}
               value={budgetData.amount}
               onChange={handleChange}
               className="h-9 border border-gray-300 rounded px-3 py-2 text-black text-sm"

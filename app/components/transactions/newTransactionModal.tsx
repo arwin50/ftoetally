@@ -12,6 +12,7 @@ export default function NewTransactionModal({
   onClose,
   onSuccess,
   defaultType = "Expense",
+  allowedMonths,
 }: NewTransactionModalProps) {
   const [formData, setFormData] = useState({
     type: defaultType,
@@ -45,6 +46,10 @@ export default function NewTransactionModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (Number(formData.amount) < 0) {
+      toast.error("Amount cannot be negative.");
+      return;
+    }
     try {
       const response = await api.post("/transactions/new/", formData);
       toast.success("Transaction added successfully!");
@@ -53,6 +58,7 @@ export default function NewTransactionModal({
       }
       onClose();
     } catch (error) {
+      console.error("Something went wrong.", error);
       toast.error("Something went wrong. Please try again.");
     }
   };
@@ -135,6 +141,7 @@ export default function NewTransactionModal({
               type="number"
               id="amount"
               name="amount"
+              min={0}
               value={formData.amount}
               onChange={handleChange}
               className="w-full sm:flex-1 h-9 border border-gray-300 rounded px-3 py-2 text-black text-sm sm:text-base"

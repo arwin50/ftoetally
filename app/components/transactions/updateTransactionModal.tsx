@@ -46,12 +46,27 @@ export default function UpdateTransactionModal({
     >
   ) => {
     const { name, value } = e.target;
-    setFormData((prev: any) => ({ ...prev, [name]: value }));
+
+    setFormData((prev) => {
+      if (name === "type") {
+        if (value === "Income") {
+          return { ...prev, type: value, category: "Salary" };
+        } else if (value === "Expense" && prev.category === "Salary") {
+          return { ...prev, type: value, category: "Food" };
+        }
+      }
+
+      return { ...prev, [name]: value };
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (Number(formData.amount) < 0) {
+      toast.error("Amount cannot be negative.");
+      return;
+    }
     try {
       const response = await api.put(
         `/transactions/update/${transactionId}/`,
@@ -63,6 +78,7 @@ export default function UpdateTransactionModal({
         onSuccess();
       }
     } catch (error) {
+      console.error("Something went wrong", error);
       toast.error("Something went wrong. Please try again.");
     }
   };
@@ -138,6 +154,7 @@ export default function UpdateTransactionModal({
               type="number"
               id="amount"
               name="amount"
+              min={0}
               value={formData.amount}
               onChange={handleChange}
               className="flex-1 h-9 border border-gray-300 rounded px-3 py-2 text-black"
@@ -181,7 +198,6 @@ export default function UpdateTransactionModal({
               <option value="Transportation">Transportation</option>
               <option value="Entertainment">Entertainment</option>
               <option value="Utilities">Utilities</option>
-              <option value="Salary">Salary</option>
               <option value="Other">Other</option>
             </select>
           </div>

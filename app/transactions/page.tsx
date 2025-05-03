@@ -2,6 +2,7 @@
 
 import { Trash2, Download } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useAppSelector } from "@/lib/redux/hooks";
 import toast from "react-hot-toast";
 import TransactionFilters from "../components/transactions/transactionFilters";
 import TransactionTable from "../components/transactions/transactionTable";
@@ -13,12 +14,18 @@ import { json2csv } from "json-2-csv";
 import type { Transaction } from "@/types";
 
 export default function TransactionsPage() {
+  const { user, isAuthenticated, isLoading } = useAppSelector(
+    (state) => state.auth
+  );
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [refreshFlag, setRefreshFlag] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [currentBudget, setCurrentBudget] = useState(0);
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
+  const [totalIncomeAllTime, setTotalIncomeAllTime] = useState(0);
+  const [totalExpensesAllTime, setTotalExpensesAllTime] = useState<number>(0);
+  const [availableMonths, setAvailableMonths] = useState<string[]>([]);
 
   const [type, setType] = useState("All");
   const [category, setCategory] = useState("All");
@@ -39,6 +46,48 @@ export default function TransactionsPage() {
       return `${currentMonth} ${currentYear}`;
     }
   };
+
+  useEffect(() => {
+    const fetchTotalIncomeAndExpenses = async () => {
+      try {
+        const incomeQuery = new URLSearchParams();
+        incomeQuery.append("type", "Income");
+        const incomeRes = await api.get(
+          `/transactions/?${incomeQuery.toString()}`
+        );
+
+        console.log("Income Response:", incomeRes.data.transactions);
+
+        const totalIncome = incomeRes.data.transactions.reduce(
+          (sum: number, tx: any) => sum + Number(tx.amount),
+          0
+        );
+        setTotalIncomeAllTime(totalIncome);
+
+        // Fetching total expenses (without applying filters)
+        const expenseQuery = new URLSearchParams();
+        expenseQuery.append("type", "Expense"); // Only fetch expenses
+        const expenseRes = await api.get(
+          `/transactions/?${expenseQuery.toString()}`
+        );
+
+        // Calculate total expenses
+        const totalExpenses = expenseRes.data.transactions.reduce(
+          (sum: number, tx: any) => sum + Number(tx.amount),
+          0
+        );
+        console.log("Expense Response:", expenseRes.data);
+        setTotalExpensesAllTime(totalExpenses);
+      } catch (err) {
+        console.error("Error fetching income or expenses:", err);
+      }
+    };
+
+    // Fetch total income and expenses when not loading and authenticated
+    if (!isLoading && isAuthenticated) {
+      fetchTotalIncomeAndExpenses();
+    }
+  }, [isLoading, isAuthenticated, refreshFlag]);
 
   useEffect(() => {
     async function fetchCurrentBudget() {
@@ -90,12 +139,12 @@ export default function TransactionsPage() {
 
         const response = await api.get(`/transactions/?${query.toString()}`);
 
-        const data = response.data;
-        console.log("Fetched Transactions:", data);
-        setTransactions(data);
+        const { transactions, available_months } = response.data;
+        setTransactions(transactions);
+        setAvailableMonths(available_months || []);
       } catch (error) {
         console.error("Error fetching transactions:", error);
-        alert("Something went wrong. Please try again later.");
+        toast.error("Something went wrong. Please try again later.");
       }
     }
 
@@ -127,7 +176,7 @@ export default function TransactionsPage() {
 
         if (response.status !== 200) {
           console.error(`Failed to delete transaction with ID ${id}`);
-          alert(`Failed to delete transaction with ID ${id}`);
+          toast.error(`Failed to delete transaction with ID ${id}`);
         }
       }
 
@@ -179,6 +228,7 @@ export default function TransactionsPage() {
             setCategory={setCategory}
             month={month}
             setMonth={setMonth}
+            availableMonths={availableMonths}
           />
         </div>
 
@@ -208,6 +258,7 @@ export default function TransactionsPage() {
               setIsBudgetModalOpen(false);
               setRefreshFlag((prev) => !prev);
             }}
+            remainingBalance={totalIncomeAllTime - totalExpensesAllTime}
           />
         </div>
       </div>

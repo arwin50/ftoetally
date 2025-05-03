@@ -29,6 +29,7 @@ export interface NewTransactionModalProps {
   onClose: () => void;
   onSuccess?: () => void;
   defaultType?: "Income" | "Expense";
+  allowedMonths?: string[];
 }
 
 export interface NewTransactionButtonProps {
@@ -52,6 +53,7 @@ export interface TransactionFiltersProps {
   setCategory: (value: string) => void;
   month: string;
   setMonth: (value: string) => void;
+  availableMonths: string[];
 }
 
 export interface TransactionTableProps {
@@ -77,4 +79,5 @@ export interface AddMonthlyBudgetModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  remainingBalance?: number;
 }
