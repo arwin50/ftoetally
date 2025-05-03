@@ -88,31 +88,33 @@ export default function DashboardPage() {
     ],
   });
 
-  useEffect(() => {
-    async function fetchCurrentBudget() {
-      try {
-        const accessToken = localStorage.getItem("accessToken");
-        if (!accessToken) return;
+  const fetchCurrentBudget = async () => {
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      if (!accessToken) return;
 
-        const response = await api.get(`/transactions/budgets/`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
+      const response = await api.get(`/transactions/budgets/`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
-        if (response.data && response.data.amount) {
-          setCurrentBudget(response.data.amount);
-        } else {
-          setCurrentBudget(0);
-        }
-      } catch (error) {
-        console.error("Failed to fetch budget:", error);
+      if (response.data && response.data.amount) {
+        setCurrentBudget(response.data.amount);
+      } else {
         setCurrentBudget(0);
       }
+    } catch (error) {
+      console.error("Failed to fetch budget:", error);
+      setCurrentBudget(0);
     }
+  };
 
-    fetchCurrentBudget();
-  }, []);
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      fetchCurrentBudget();
+    }
+  }, [isLoading, isAuthenticated]);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -470,7 +472,10 @@ export default function DashboardPage() {
           <AddMonthlyBudgetModal
             isOpen={addMonthlyBudgetModalOpen}
             onClose={() => setAddMonthlyBudgetModalOpen(false)}
-            onSuccess={() => setAddMonthlyBudgetModalOpen(false)}
+            onSuccess={() => {
+              setAddMonthlyBudgetModalOpen(false);
+              fetchCurrentBudget();
+            }}
           />
         )}
       </PageLayout>
