@@ -99,109 +99,99 @@ export default function DashboardPage() {
     }
   }, [isAuthenticated, isLoading, router]);
 
+  const fetchTotalIncomeAndExpenses = async () => {
+    try {
+      const incomeQuery = new URLSearchParams();
+      incomeQuery.append("type", "Income");
+      const incomeRes = await api.get(
+        `/transactions/?${incomeQuery.toString()}`
+      );
+      const totalIncome = incomeRes.data.transactions.reduce(
+        (sum: number, tx: any) => sum + Number(tx.amount),
+        0
+      );
+      setTotalIncomeAllTime(totalIncome);
+
+      const expenseQuery = new URLSearchParams();
+      expenseQuery.append("type", "Expense");
+      const expenseRes = await api.get(
+        `/transactions/?${expenseQuery.toString()}`
+      );
+      const totalExpenses = expenseRes.data.transactions.reduce(
+        (sum: number, tx: any) => sum + Number(tx.amount),
+        0
+      );
+      setTotalExpensesAllTime(totalExpenses);
+    } catch (err) {
+      console.error("Error fetching income or expenses:", err);
+    }
+  };
+
   useEffect(() => {
-    const fetchTotalIncomeAndExpenses = async () => {
-      try {
-        // Fetching total income (without applying filters)
-        const incomeQuery = new URLSearchParams();
-        incomeQuery.append("type", "Income"); // Only fetch income
-        const incomeRes = await api.get(
-          `/transactions/?${incomeQuery.toString()}`
-        );
-
-        // Calculate total income
-        const totalIncome = incomeRes.data.transactions.reduce(
-          (sum: number, tx: any) => sum + Number(tx.amount),
-          0
-        );
-        setTotalIncomeAllTime(totalIncome);
-
-        // Fetching total expenses (without applying filters)
-        const expenseQuery = new URLSearchParams();
-        expenseQuery.append("type", "Expense");
-        const expenseRes = await api.get(
-          `/transactions/?${expenseQuery.toString()}`
-        );
-
-        const totalExpenses = expenseRes.data.transactions.reduce(
-          (sum: number, tx: any) => sum + Number(tx.amount),
-          0
-        );
-        console.log("Expense Response:", expenseRes.data);
-        setTotalExpensesAllTime(totalExpenses);
-      } catch (err) {
-        console.error("Error fetching income or expenses:", err);
-      }
-    };
-
     if (!isLoading && isAuthenticated) {
       fetchTotalIncomeAndExpenses();
     }
   }, [isLoading, isAuthenticated]);
 
+  const fetchBudgetAndExpenses = async () => {
+    try {
+      const budgetRes = await api.get(
+        `/transactions/budgets/?month=${selectedMonthYear}-01`
+      );
+
+      const monthlyBudget = Number(budgetRes.data.amount);
+      setCurrentBudget(monthlyBudget);
+
+      const query = new URLSearchParams();
+      query.append("type", "Expense");
+      query.append("month", selectedMonthYear);
+
+      const expenseRes = await api.get(`/transactions/?${query.toString()}`);
+      const expenses = expenseRes.data.transactions;
+      setTransactions(expenses);
+
+      let totalExpense = 0;
+      const categoryTotals: { [key: string]: number } = {};
+
+      expenses.forEach((tx: Transaction) => {
+        const amt = Number(tx.amount);
+        totalExpense += amt;
+        categoryTotals[tx.category] = (categoryTotals[tx.category] || 0) + amt;
+      });
+
+      const labels = Object.keys(categoryTotals);
+      const data = Object.values(categoryTotals);
+
+      setTotalExpenses(totalExpense);
+
+      setPieData((prev: any) => ({
+        ...prev,
+        labels,
+        datasets: [
+          {
+            ...prev.datasets[0],
+            data,
+          },
+        ],
+      }));
+
+      setBarData({
+        labels: ["Budget", "Expenses"],
+        datasets: [
+          {
+            label: "Amount",
+            data: [monthlyBudget, totalExpense],
+            backgroundColor: ["#14B8A6", "#F87171"],
+          },
+        ],
+      });
+    } catch (error) {
+      console.error("Error fetching budget or expenses:", error);
+      toast.error("Something went wrong. Please try again later.");
+    }
+  };
+
   useEffect(() => {
-    const fetchBudgetAndExpenses = async () => {
-      try {
-        const budgetRes = await api.get(
-          `/transactions/budgets/?month=${selectedMonthYear}-01`
-        );
-
-        const monthlyBudget = Number(budgetRes.data.amount);
-        setCurrentBudget(monthlyBudget);
-
-        const query = new URLSearchParams();
-        query.append("type", "Expense");
-
-        query.append("month", selectedMonthYear);
-
-        const expenseRes = await api.get(`/transactions/?${query.toString()}`);
-
-        const expenses = expenseRes.data.transactions;
-        console.log("Expenses:", expenses);
-        setTransactions(expenses);
-
-        let totalExpense = 0;
-        const categoryTotals: { [key: string]: number } = {};
-
-        expenses.forEach((tx: Transaction) => {
-          const amt = Number(tx.amount);
-          totalExpense += amt;
-          categoryTotals[tx.category] =
-            (categoryTotals[tx.category] || 0) + amt;
-        });
-
-        const labels = Object.keys(categoryTotals);
-        const data = Object.values(categoryTotals);
-
-        setTotalExpenses(totalExpense);
-
-        setPieData((prev: any) => ({
-          ...prev,
-          labels,
-          datasets: [
-            {
-              ...prev.datasets[0],
-              data,
-            },
-          ],
-        }));
-
-        setBarData({
-          labels: ["Budget", "Expenses"],
-          datasets: [
-            {
-              label: "Amount",
-              data: [monthlyBudget, totalExpense],
-              backgroundColor: ["#14B8A6", "#F87171"],
-            },
-          ],
-        });
-      } catch (error) {
-        console.error("Error fetching budget or expenses:", error);
-        toast.error("Something went wrong. Please try again later.");
-      }
-    };
-
     if (!isLoading && isAuthenticated) {
       fetchBudgetAndExpenses();
     }
@@ -537,7 +527,11 @@ export default function DashboardPage() {
         {addExpenseModalOpen && (
           <NewTransactionModal
             onClose={() => setAddExpenseModalOpen(false)}
-            onSuccess={() => setAddExpenseModalOpen(false)}
+            onSuccess={() => {
+              setAddExpenseModalOpen(false);
+              fetchTotalIncomeAndExpenses();
+              fetchBudgetAndExpenses();
+            }}
             defaultType="Expense"
             allowedMonths={availableMonths}
           />
@@ -545,7 +539,10 @@ export default function DashboardPage() {
         {addIncomeModalOpen && (
           <NewTransactionModal
             onClose={() => setAddIncomeModalOpen(false)}
-            onSuccess={() => setAddIncomeModalOpen(false)}
+            onSuccess={() => {
+              setAddIncomeModalOpen(false);
+              fetchTotalIncomeAndExpenses();
+            }}
             defaultType="Income"
             allowedMonths={availableMonths}
           />
