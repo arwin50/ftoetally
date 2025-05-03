@@ -67,7 +67,7 @@ export default function NewTransactionModal({
           </h2>
           <button
             onClick={onClose}
-            className="text-white hover:bg-[#ba7c91] bg-[#85193C] rounded-md flex-shrink-0"
+            className="text-white hover:bg-[#ba7c91] bg-[#85193C] rounded-md flex-shrink-0 cursor-pointer"
             aria-label="Close modal"
           >
             <X className="h-6 w-6 sm:h-8 sm:w-8" />
@@ -206,7 +206,7 @@ export default function NewTransactionModal({
           <div className="flex justify-center mt-6">
             <button
               type="submit"
-              className="px-4 py-2 bg-[#4A102A] text-white rounded-md hover:bg-[#35091D] text-sm sm:text-base"
+              className="px-4 py-2 bg-[#4A102A] text-white rounded-md hover:bg-[#35091D] text-sm sm:text-base cursor-pointer"
             >
               Save
             </button>
